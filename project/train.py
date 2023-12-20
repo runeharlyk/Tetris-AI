@@ -4,11 +4,21 @@ from graphics import CVRenderer
 
 env = Tetris(10, 20)
 
-agent = Agent()
+# Initialize training variable
+max_episode = 3000
+max_steps = 25000
 
-if __name__ == '__main__':
+agent = Agent(4)
 
 renderer = CVRenderer()
+
+def run_episodes():
+    rewards = [run_episode(i) for i in range(max_episode)]
+    print(rewards)
+    return rewards
+
+def run_episode(episode):
+    print(f'Running episode {episode}')
     current_state = env.reset()
     total_reward = 0
     done = False
@@ -22,7 +32,7 @@ renderer = CVRenderer()
 
         if not next_states: break
 
-        best_state = agent.get_best_state(next_states.values())
+        best_state = agent.act(next_states.values())
 
         best_action = None
         for action, state in next_states.items():
@@ -33,8 +43,19 @@ renderer = CVRenderer()
         reward, done = env.step(best_action)
         total_reward += reward
 
+        agent.add_to_memory(current_state, next_states[best_action], reward, done)
+
         current_state = next_states[best_action]
 
         renderer.wait(1)
         steps += 1
-    print(total_reward)
+
+    agent.replay()
+
+    if agent.epsilon > agent.epsilon_min:
+        agent.epsilon -= agent.epsilon_decay
+
+    return total_reward
+
+if __name__ == '__main__':
+    run_episodes()
