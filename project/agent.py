@@ -1,3 +1,4 @@
+import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -21,7 +22,7 @@ class Net(nn.Module):
         return self.fc4(x)
 
 class Agent:
-    def __init__(self, state_size):
+    def __init__(self, state_size, path=None):
         self.state_size = state_size
         self.memory = deque(maxlen=30000)
         self.discount = 0.95
@@ -35,6 +36,8 @@ class Agent:
         self.epochs = 1
 
         self.model = Net(state_size)
+        if path and os.path.isfile(path):
+            self.model.load_state_dict(torch.load(path))
         self.optimizer = optim.Adam(self.model.parameters(), lr=0.001)
 
     def add_to_memory(self, current_state, next_state, reward, done):
@@ -56,6 +59,9 @@ class Agent:
                         best = state
 
         return best
+    
+    def save(self, path):
+        torch.save(self.model.state_dict(), path)
 
     def replay(self):
         if len(self.memory) > self.replay_start:

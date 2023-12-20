@@ -2,13 +2,17 @@ from game import Tetris
 from agent import Agent
 from graphics import CVRenderer
 
-env = Tetris(10, 20)
+height, width = 20, 10
+
+env = Tetris(width, height)
 
 # Initialize training variable
 max_episode = 3000
 max_steps = 25000
 
-agent = Agent(4)
+model_path = f'model_{width}_{height}.pt'
+
+agent = Agent(4, model_path)
 
 renderer = CVRenderer()
 
@@ -58,4 +62,7 @@ def run_episode(episode):
     return total_reward
 
 if __name__ == '__main__':
-    run_episodes()
+    try:
+        run_episodes()
+    finally:
+        agent.save(model_path)
