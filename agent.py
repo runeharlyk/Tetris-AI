@@ -22,19 +22,29 @@ class Net(nn.Module):
     def forward(self, x):
         return self.layers(x)
 
+class Cost:
+    def __init__(self):
+        pass
+
+    def calculate(self, state, cleared_lines, done):
+        state_penalties =  np.sum(np.array([0, -0.1, -0.1, -0.01]) * state) # cleared_lines, holes, bumpiness, height
+        death_penalty = done * -20
+        cleared_lines_reward = cleared_lines ** 2 * 10 + 1
+        return death_penalty + cleared_lines_reward + state_penalties
+
 class Agent:
     def __init__(self, state_size, path=None, lr=0.001):
+        self.costCalc = Cost()
         self.state_size = state_size
         self.memory = deque(maxlen=30000)
         self.discount = 0.95
-        self.epsilon = 1.0
-        self.epsilon_min = 0.01 
-        self.epsilon_end_episode = 200
+        self.epsilon = 0.25
+        self.epsilon_min = 0.05 
+        self.epsilon_end_episode = 400
         self.epsilon_decay = (self.epsilon - self.epsilon_min) / self.epsilon_end_episode
 
-        self.batch_size = 512
-        self.replay_start = 00
-        self.epochs = 1
+        self.batch_size = 100
+        self.replay_start = 0 # self.batch_size
 
         self.model = Net(state_size)
         if path and os.path.isfile(path):
@@ -45,20 +55,24 @@ class Agent:
     def add_to_memory(self, current_state, next_state, reward, done):
         self.memory.append([current_state, next_state, reward, done])
 
+    def get_action_by_state(self, states, best_state):
+        return next((action for action, state in states.items() if (best_state == state).all()), None)
+    
     def act(self, states):
-        states = list(states)
-        state_tensors = torch.FloatTensor(states)
         if random.random() <= self.epsilon:
-            return random.choice(states)
+            return random.choice(list(states.keys()))
+        
+        state_tensors = torch.FloatTensor(np.array(list(states.values())))
         with torch.no_grad():
             values = self.model(state_tensors)
-            return states[torch.argmax(values).item()]
+            return self.get_action_by_state(states, list(states.values())[ torch.argmax(values).item()]) #states[torch.argmax(values).item()]
     
     def save(self, path):
         torch.save(self.model.state_dict(), path)
 
     def replay(self):
-        # if len(self.memory) > self.replay_start:
+        if len(self.memory) < self.replay_start: return
+
         batch = random.sample(self.memory, min(len(self.memory), self.batch_size))
 
         next_states = torch.FloatTensor([s[1] for s in batch])
