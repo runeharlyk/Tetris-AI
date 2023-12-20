@@ -28,18 +28,6 @@ def hard_drop(shape, anchor, board):
         anchor = anchor_new
 
 
-
-
-# class Game():
-#     def __init__(self, width, height) -> None:
-#         self.width = width
-#         self.height = height
-#         self.reset()
-
-
-
-
-
 class Tetris:
     def __init__(self, width, height):
         self.width = width
