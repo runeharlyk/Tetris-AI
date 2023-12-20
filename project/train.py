@@ -1,11 +1,14 @@
 from game import Tetris
 from agent import Agent
+from graphics import CVRenderer
 
 env = Tetris(10, 20)
 
 agent = Agent()
 
 if __name__ == '__main__':
+
+renderer = CVRenderer()
     current_state = env.reset()
     total_reward = 0
     done = False
@@ -13,7 +16,7 @@ if __name__ == '__main__':
     steps = 0
 
     while not done and steps < max_steps:
-        env.render(total_reward)
+        renderer.render(env, total_reward)
 
         next_states = env.get_next_states()
 
@@ -32,5 +35,6 @@ if __name__ == '__main__':
 
         current_state = next_states[best_action]
 
+        renderer.wait(1)
         steps += 1
     print(total_reward)

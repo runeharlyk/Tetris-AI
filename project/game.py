@@ -219,28 +219,3 @@ class Tetris:
             self.shape = rotated(self.shape)
         return states
 
-    def render(self, score):
-        self._set_piece(True)
-        board = self.board[:].T
-        board = [[green if board[i][j] else black for j in range(self.width)] for i in range(self.height)]
-        self._set_piece(False)
-
-        img = np.array(board).reshape((self.height, self.width, 3)).astype(np.uint8)
-        img = cv.resize(img, (self.width * 25, self.height * 25), interpolation=cv.INTER_NEAREST)
-
-        # To draw lines every 25 pixels
-        img[[i * 25 for i in range(self.height)], :, :] = 0
-        img[:, [i * 25 for i in range(self.width)], :] = 0
-
-        # Add extra spaces on the top to display game score
-        extra_spaces = np.zeros((2 * 25, self.width * 25, 3))
-        cv.putText(extra_spaces, "Score: " + str(score), (15, 35), cv.FONT_HERSHEY_SIMPLEX, 1, white, 2, cv.LINE_AA)
-
-        # Add extra spaces to the board image
-        img = np.concatenate((extra_spaces, img), axis=0)
-
-        # Draw horizontal line to separate board and extra space area
-        img[50, :, :] = white
-
-        cv.imshow('DQN Tetris', img)
-        cv.waitKey(1)
