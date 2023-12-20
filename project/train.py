@@ -1,11 +1,13 @@
 from game import Tetris
 from agent import Agent
 from graphics import CVRenderer, InvincibleRenderer
+from plot import ScatterPlot
 
 height, width = 20, 10
 
 env = Tetris(width, height)
 
+plot = ScatterPlot("", "", "")
 # Initialize training variable
 max_episode = 3000
 max_steps = 25000
@@ -38,11 +40,7 @@ def run_episode(episode):
 
         best_state = agent.act(next_states.values())
 
-        best_action = None
-        for action, state in next_states.items():
-            if (best_state == state).all():
-                best_action = action
-                break
+        best_action = next((action for action, state in next_states.items() if (best_state == state).all()), None)
 
         reward, done = env.step(best_action)
         total_reward += reward
@@ -59,6 +57,8 @@ def run_episode(episode):
     if agent.epsilon > agent.epsilon_min:
         agent.epsilon -= agent.epsilon_decay
 
+    print(f'Run episode {episode:02d}, total_reward:{total_reward}')
+    plot.add_point(episode, total_reward, True)
     return total_reward
 
 if __name__ == '__main__':

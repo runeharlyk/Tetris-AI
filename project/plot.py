@@ -7,16 +7,22 @@ class ScatterPlot:
     def __init__(self, xlabel, ylabel, title) -> None:
         plt.ion()
         self.fig, self.ax = plt.subplots()
-        self.x, self.y = [],[]
+        self.x, self.y = [0],[0]
         self.sc = self.ax.scatter(self.x, self.y)
         self.ax.set_xlabel(xlabel)
         self.ax.set_ylabel(ylabel)
         self.ax.set_title(title)
+        # self.ax.set_xlim([0, 10])
+        # self.ax.set_ylim([0, 10])
         plt.draw()
 
-    def add_point(self, x, y):
+    def add_point(self, x, y, render, pause=0.0001):
         self.x.append(x)
         self.y.append(y)
+        if not render: return
+        self.update(pause)
+    
+    def update(self, pause=0.0001):
         ax = plt.gca()
         xmin, xmax = min(self.x), max(self.x)
         ymin, ymax = min(self.y), max(self.y)
@@ -25,7 +31,10 @@ class ScatterPlot:
         ax.set_ylim([ymin - dy, ymax + dy])
         self.sc.set_offsets(np.c_[self.x, self.y])
         self.fig.canvas.draw_idle()
-        plt.pause(0.001)
+        plt.pause(pause)
+
+    def freeze(self):
+        plt.waitforbuttonpress()
 
 if __name__ == '__main__':
     plot = ScatterPlot("Test", "X-axis", "Y-axis")

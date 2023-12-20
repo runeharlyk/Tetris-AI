@@ -109,7 +109,7 @@ class Tetris:
         if np.any(self.board[:, 0]):
             self.reset()
             done = True
-            reward -= 5
+            reward -= 20
         else:
             self._new_piece()
 
