@@ -1,6 +1,6 @@
 from game import Tetris
 from agent import Agent
-from graphics import CVRenderer
+from graphics import CVRenderer, InvincibleRenderer
 
 height, width = 20, 10
 
@@ -14,7 +14,7 @@ model_path = f'model_{width}_{height}.pt'
 
 agent = Agent(4, model_path)
 
-renderer = CVRenderer()
+renderer = InvincibleRenderer()
 
 def run_episodes():
     rewards = [run_episode(i) for i in range(max_episode)]

@@ -46,3 +46,13 @@ class CVRenderer(Renderer):
 
     def wait(self, ms):
         cv.waitKey(ms)
+
+class InvincibleRenderer(Renderer):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def render(self, board, score):
+        return super().render(board, score)
+
+    def wait(self, ms):
+        pass
