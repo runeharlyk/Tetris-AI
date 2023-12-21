@@ -2,7 +2,6 @@ from random import randrange as rand
 import pygame, sys
 import numpy as np
 
-# The configuration
 config = {
     'cell_size':    20,
     'cols':        8,
@@ -22,7 +21,6 @@ colors = [
 (0,   220, 220)
 ]
 
-# Define the shapes of the single parts
 tetris_shapes = [
     np.array([[1, 1, 1], [0, 1, 0]]),
     np.array([[0, 2, 2], [2, 2, 0]]),
@@ -33,24 +31,29 @@ tetris_shapes = [
     np.array([[7, 7], [7, 7]])
 ]
 
-class Tetris:
-    def __init__(self, width, height):
-        self.width = width
-        self.height = height
-        
-        self.held_shapes = []
-        self.next_shapes = []
+points = [0, 100, 300, 500, 800]
 
+class Tetris:
+    def __init__(self, columns, rows):
+        self.cols = columns
+        self.rows = rows
+        
         self.reset()
 
     def reset(self):
+        self.done = False
+        self.board = self.new_board()
         self.score = 0
         self.lines = 0
-        self.level = 0
-        self.board = self.new_board()
+        self.level = 1
+        self.held_shapes = []
+        self.next_shapes = []
+        self.new_shape()
 
-    def rotate_clockwise(self, shape):
-        return np.rot90(shape, -1)
+    def rotate_clockwise(self):
+        new_shape = np.rot90(self.shape, -1)
+        if not self.check_collision(new_shape, (self.shape_x, self.shape_y)):
+            self.shape = new_shape
 
     def check_collision(self, shape, offset):
         off_x, off_y = offset
@@ -74,41 +77,75 @@ class Tetris:
                 self.board[cy+off_y-1][cx+off_x] += val
                 
     def new_board(self):
-        board = np.zeros((config['rows']+1, config['cols']), dtype=int)
+        board = np.zeros((self.rows + 1, self.cols), dtype=int)
         board[-1] = 1
         return board
     
     def new_shape(self):
-        pass        
+        self.shape = tetris_shapes[rand(len(tetris_shapes))]
+        self.shape_x = self.cols // 2 - len(self.shape[0]) // 2
+        self.shape_y = 0
+        
+        if self.check_collision(self.shape, (self.shape_x, self.shape_y)):
+            self.done = True        
+
+    def move(self, delta_x):
+        if self.done: return
+
+        new_x = self.shape_x + delta_x
+        if new_x < 0:
+            new_x = 0
+        if new_x > self.cols - len(self.shape[0]):
+            new_x = self.cols - len(self.shape[0])
+        if not self.check_collision(self.shape, (new_x, self.shape_y)):
+            self.shape_x = new_x
+
+    def clear_lines(self):
+        cleared = 0
+        while True:
+            for i, row in enumerate(self.board[:-1]):
+                if 0 not in row:
+                    cleared += 1
+                    self.remove_row(i)
+                    break
+            else:
+                break
+        return cleared
+
+    def add_points(self, lines_cleared):
+        self.lines += lines_cleared
+        self.score += points[lines_cleared] * self.level
+
+    def drop(self):
+        self.shape_y += 1
+        if self.check_collision(self.shape, (self.shape_x, self.shape_y)):
+            self.place_shape(self.shape, (self.shape_x, self.shape_y))
+            self.new_shape()
+            cleared_lines = self.clear_lines()
+            self.add_points(cleared_lines)
+
+    def hold(self):
+        if not self.held_shapes:
+            self.held_shapes.append(self.shape)
+            self.new_shape()    
+        else:
+            shape = self.held_shapes.pop()
+            self.held_shapes.append(self.shape)
+            self.shape = shape
+            
 
 class TetrisApp(object):
     def __init__(self):
-        self.game = Tetris(0, 0)
+        self.game = Tetris(config['cols'], config['rows'])
 
         pygame.init()
         pygame.key.set_repeat(250,25)
-        self.width = config['cell_size']*config['cols']
+        self.width = config['cell_size']*config['cols']*2
         self.height = config['cell_size']*config['rows']
         
         self.screen = pygame.display.set_mode((self.width, self.height))
-        pygame.event.set_blocked(pygame.MOUSEMOTION) # We do not need
-                                                     # mouse movement
-                                                     # events, so we
-                                                     # block them.
-        self.init_game()
-    
-    def new_stone(self):
-        self.stone = tetris_shapes[rand(len(tetris_shapes))]
-        self.stone_x = int(config['cols'] / 2 - len(self.stone[0])/2)
-        self.stone_y = 0
-        
-        if self.game.check_collision(self.stone, (self.stone_x, self.stone_y)):
-            self.gameover = True
-    
-    def init_game(self):
-        self.game.reset()
-        self.new_stone()
-    
+        pygame.event.set_blocked(pygame.MOUSEMOTION) 
+   
     def center_msg(self, msg):
         for i, line in enumerate(msg.splitlines()):
             msg_image =  pygame.font.Font(
@@ -139,39 +176,22 @@ class TetrisApp(object):
                             config['cell_size'],
                             config['cell_size']),0)
     
-    def move(self, delta_x):
-        if not self.gameover and not self.paused:
-            new_x = self.stone_x + delta_x
-            if new_x < 0:
-                new_x = 0
-            if new_x > config['cols'] - len(self.stone[0]):
-                new_x = config['cols'] - len(self.stone[0])
-            if not self.game.check_collision(self.stone, (new_x, self.stone_y)):
-                self.stone_x = new_x
+
     def quit(self):
         self.center_msg("Exiting...")
         pygame.display.update()
         sys.exit()
+
+    def should_play(self):
+        return not self.gameover and not self.paused
     
     def drop(self):
-        if not self.gameover and not self.paused:
-            self.stone_y += 1
-            if self.game.check_collision(self.stone, (self.stone_x, self.stone_y)):
-                self.game.place_shape(self.stone, (self.stone_x, self.stone_y))
-                self.new_stone()
-                while True:
-                    for i, row in enumerate(self.game.board[:-1]):
-                        if 0 not in row:
-                            self.game.remove_row(i)
-                            break
-                    else:
-                        break
+        if not self.should_play(): return
+        self.game.drop()
     
     def rotate_stone(self):
-        if not self.gameover and not self.paused:
-            new_stone = self.game.rotate_clockwise(self.stone)
-            if not self.game.check_collision(new_stone, (self.stone_x, self.stone_y)):
-                self.stone = new_stone
+        if self.gameover or self.paused: return
+        self.game.rotate_clockwise()
     
     def toggle_pause(self):
         self.paused = not self.paused
@@ -184,8 +204,8 @@ class TetrisApp(object):
     def run(self):
         key_actions = {
             'ESCAPE':    self.quit,
-            'LEFT':        lambda:self.move(-1),
-            'RIGHT':    lambda:self.move(+1),
+            'LEFT':        lambda:self.game.move(-1),
+            'RIGHT':    lambda:self.game.move(+1),
             'DOWN':        self.drop,
             'UP':        self.rotate_stone,
             'p':        self.toggle_pause,
@@ -206,10 +226,11 @@ Press space to continue""")
                 if self.paused:
                     self.center_msg("Paused")
                 else:
-                    self.draw_matrix(self.game.board, (0,0))
-                    self.draw_matrix(self.stone,
-                                     (self.stone_x,
-                                      self.stone_y))
+                    offset = 0#config['cols']*config['cell_size']
+                    self.draw_matrix(self.game.board, (offset,0))
+                    self.draw_matrix(self.game.shape,
+                                     (self.game.shape_x + offset,
+                                      self.game.shape_y))
             pygame.display.update()
             
             for event in pygame.event.get():
