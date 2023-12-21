@@ -5,11 +5,15 @@ from Renderer.CVRenderer import CVRenderer
 from Renderer.PyGameRenderer import PyGameRenderer
 from plot import ScatterPlot
 
+from controls import Controller
+
 # https://github.com/andreanlay/tetris-ai-deep-reinforcement-learning/tree/master
 
 height, width = 20, 10
 
 env = Tetris(width, height)
+
+controller = Controller()
 
 plot = ScatterPlot("", "", "") 
 # Initialize training variable
@@ -39,6 +43,10 @@ def run_episode(episode):
 
         next_states = env.get_next_states()
 
+        inputs = controller.input()
+        if "quit" in inputs:    
+            quit()
+        
         if not next_states: break
 
         best_action = agent.act(next_states)

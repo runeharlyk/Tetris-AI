@@ -1,3 +1,6 @@
+game_actions = ["left", "right", "rotate_cw", "rotate_ccw", "soft_drop", "hard_drop", "hold"]
+env_actions = ["quit", "render", "pause"]
+
 shapes = {
     'T': [(0, 0), (-1, 0), (1, 0), (0, -1)],
     'J': [(0, 0), (-1, 0), (0, -1), (0, -2)],
