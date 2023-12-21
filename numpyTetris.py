@@ -116,13 +116,16 @@ class Tetris:
         self.lines += lines_cleared
         self.score += points[lines_cleared] * self.level
 
-    def down(self):
-        self.shape_y += 1
+    def evaluate_position(self):
         if self.check_collision(self.shape, (self.shape_x, self.shape_y)):
             self.place_shape(self.shape, (self.shape_x, self.shape_y))
             self.new_shape()
             cleared_lines = self.clear_lines()
             self.add_points(cleared_lines)
+
+    def down(self):
+        self.shape_y += 1
+        self.evaluate_position()
 
     def hold(self):
         if not self.held_shapes:
@@ -134,10 +137,16 @@ class Tetris:
             self.shape = shape
 
     def soft_drop(self):
-        self.shape_y += 1
-        if self.check_collision(self.shape, (self.shape_x, self.shape_y)):
-            pass
-            
+        while not self.check_collision(self.shape, (self.shape_x, self.shape_y)):
+            self.shape_y += 1
+        self.shape_y -= 1
+
+    def hard_drop(self):
+        self.soft_drop()
+        self.down()
+
+    # def step(self, action):
+
 
 class TetrisApp(object):
     def __init__(self):
@@ -221,6 +230,8 @@ class TetrisApp(object):
             'UP':       self.rotate_stone,
             'p':        self.toggle_pause,
             'c':        self.game.hold,
+            'v':        self.game.soft_drop,
+            'b':        self.game.hard_drop,
             'SPACE':    self.start_game
         }
         
