@@ -1,21 +1,9 @@
-from config import *
-
 import cv2 as cv
 import numpy as np
-from time import sleep
 
-class Renderer:
-    def __init__(self) -> None:
-        pass
+from Renderer.RendererBase import *
 
-    def render(self, board, score):
-        pass
-
-    def wait(self, ms):
-        sleep(ms / 100)
-
-
-class CVRenderer(Renderer):
+class CVRenderer(RendererBase):
     def __init__(self) -> None:
         super().__init__()
 
@@ -46,13 +34,3 @@ class CVRenderer(Renderer):
 
     def wait(self, ms):
         cv.waitKey(ms)
-
-class InvincibleRenderer(Renderer):
-    def __init__(self) -> None:
-        super().__init__()
-
-    def render(self, board, score):
-        return super().render(board, score)
-
-    def wait(self, ms):
-        pass

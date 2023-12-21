@@ -1,6 +1,8 @@
 from game import Tetris
 from agent import Agent
-from graphics import CVRenderer, InvincibleRenderer
+from Renderer.InvincibleRenderer import InvincibleRenderer
+from Renderer.CVRenderer import CVRenderer
+from Renderer.PyGameRenderer import PyGameRenderer
 from plot import ScatterPlot
 
 # https://github.com/andreanlay/tetris-ai-deep-reinforcement-learning/tree/master
@@ -18,7 +20,7 @@ max_steps = 25000
 
 agent = Agent(4)
 
-renderer = CVRenderer()
+renderer = PyGameRenderer()
 
 def run_episodes():
     rewards = [run_episode(i) for i in range(max_episode)]
