@@ -17,10 +17,10 @@ class Tetris:
         self.anchor = None
         self.shape = None
 
-        # Used for generating shapes
         self._shape_counts = [0] * len(shapes)
+        self.held_piece = [self._new_piece()]
+        self.next_piece = [self._new_piece()]
 
-        # Reset after initializing
         self.reset()
 
     def rotated(self, shape):
@@ -203,6 +203,6 @@ class Tetris:
                 self._set_piece(False)
                 self.anchor = old_anchor
 
-            self.shape = self.boardrotated(self.shape)
+            self.shape = self.rotated(self.shape)
         return states
 
