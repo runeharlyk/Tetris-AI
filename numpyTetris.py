@@ -50,7 +50,7 @@ class Tetris:
         self.level = 1
         self.held_shapes = []
         self.next_shapes = []
-        self.__new_shape()
+        self.__get_new_shapes()
 
     # Heuristics
     def __count_holes(self, board):
@@ -127,10 +127,12 @@ class Tetris:
         self.lines += lines_cleared
         self.score += line_points[lines_cleared] * self.level
 
-    def __new_shape(self):
-        for _ in range(4 - len(self.next_shapes)):
-            shape_index = np.random.randint(len(tetris_shapes))
-            self.next_shapes.append(tetris_shapes[shape_index].copy())
+    def __get_new_random_shape(self):
+        shape_index = np.random.randint(len(tetris_shapes))
+        return tetris_shapes[shape_index].copy()
+
+    def __get_new_shapes(self):
+        self.next_shapes.extend([self.__get_new_random_shape() for _ in range(4 - len(self.next_shapes))])
         self.shape = self.next_shapes.pop(0)
         self.shape_x = self.cols // 2 - len(self.shape[0]) // 2
         self.shape_y = 0
