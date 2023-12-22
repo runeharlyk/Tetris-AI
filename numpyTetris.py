@@ -60,12 +60,12 @@ class Tetris:
 
     def check_collision(self, shape, offset):
         off_x, off_y = offset
-        for cy, row in enumerate(shape):
-            for cx, cell in enumerate(row):
-                outerBounce = (cy + off_y >= self.board.shape[0] or cx + off_x >= self.board.shape[1])
-                if cell and (outerBounce or self.board[cy + off_y][cx + off_x]):
-                    return True                
-        return False
+        shape_height, shape_width = shape.shape
+        if off_x < 0 or off_x + shape_width > self.cols or off_y + shape_height > self.rows:
+            return True
+        board_area = self.board[off_y:off_y + shape_height, off_x:off_x + shape_width]
+
+        return np.any(np.logical_and(shape, board_area))
 
     def remove_row(self, row):
         new_row = np.zeros((1, self.board.shape[1]))
@@ -83,7 +83,8 @@ class Tetris:
         return board
     
     def new_shape(self):
-        self.shape = tetris_shapes[rand(len(tetris_shapes))]
+        shape_index = np.random.randint(len(tetris_shapes))
+        self.shape = tetris_shapes[shape_index].copy()
         self.shape_x = self.cols // 2 - len(self.shape[0]) // 2
         self.shape_y = 0
         
