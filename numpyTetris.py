@@ -64,12 +64,44 @@ class Tetris:
 
         return total_height, bumpiness
     
-        cleared_lines = 0
-    def get_state(self, board:np.ndarray):
+    def _count_full_lines(self, board:np.ndarray):
+        full_rows = np.all(board != 0, axis=1)
+        return int(np.sum(full_rows))
+
+    def _get_current_state(self, board:np.ndarray, shape:np.ndarray, offset:tuple):
+        new_board = board.copy()
+        self._place_shape(new_board, shape, offset)
+        cleared_lines = self._count_full_lines(new_board)
         holes = self._count_holes(board)
         bumpiness, height = self._calculate_height_and_bumpiness(board)
 
         return np.array([cleared_lines, holes, bumpiness, height])
+
+    def get_state(self, board:np.ndarray):
+        cleared_lines = self._count_full_lines(board)
+        holes = self._count_holes(board)
+        bumpiness, height = self._calculate_height_and_bumpiness(board)
+
+        return np.array([cleared_lines, holes, bumpiness, height])
+    
+    def get_possible_states(self):
+        states = {}
+        shape = self.shape
+        shape_x = self.shape_x
+        board = self.board.copy()
+        _, cols = board.shape
+
+        for rotation in range(4):
+            rotated = self._rotate(board, shape, (shape_x, 0), rotation)
+            max_x = int(cols - rotated.shape[1])
+            for x in range(max_x):
+                pos = [x, 0]
+                while not self._check_collision(board, rotated, pos):
+                    pos[1] += 1
+                pos[1] -= 1
+                states[(x, rotation)] = self._get_current_state(board, rotated, pos)
+
+        return states
 
             # Check for each rotation
         
