@@ -102,18 +102,12 @@ class Tetris:
             return new_shape
         return shape
     
-        shape_x, shape_y = offset
-        new_x = shape_x + delta_x
-        _, cols = board.shape
-        if new_x < 0:
-            new_x = 0
-        if new_x > cols - len(shape[0]):
-            new_x = cols - len(shape[0])
-        if not self._check_collision(board, shape, (new_x, shape_y)):
-            shape_x = new_x
-        return shape_x
-
     def _move(self, board:np.ndarray, shape:np.ndarray, offset:tuple, delta_x:int):
+        new_x = max(0, min(offset[0] + delta_x, board.shape[1] - shape.shape[1]))
+        if self._check_collision(board, shape, (new_x, offset[1])):
+            return offset[0]
+        return new_x
+
     def _soft_drop(self, board:np.ndarray, shape:np.ndarray, offset:tuple):
         x, y = offset
         while not self._check_collision(board, shape, (x, y + 1)):
