@@ -11,14 +11,14 @@ config = {
 }
 
 colors = [
-(0,   0,   0  ),
-(255, 0,   0  ),
-(0,   150, 0  ),
-(0,   0,   255),
-(255, 120, 0  ),
-(255, 255, 0  ),
-(180, 0,   255),
-(0,   220, 220)
+    (0,   0,   0  ),
+    (255, 0,   0  ),
+    (0,   150, 0  ),
+    (0,   0,   255),
+    (255, 120, 0  ),
+    (255, 255, 0  ),
+    (180, 0,   255),
+    (0,   220, 220)
 ]
 
 tetris_shapes = [
@@ -31,18 +31,21 @@ tetris_shapes = [
     np.array([[7, 7], [7, 7]])
 ]
 
-points = [0, 100, 300, 500, 800]
+line_points = [0, 100, 300, 500, 800]
 
 class Tetris:
     def __init__(self, columns, rows):
         self.cols = columns
         self.rows = rows
+        self.high_score = 0
+        self.score = 0
         
         self.reset()
 
     def reset(self):
         self.done = False
         self.board = self.new_board()
+        self.high_score = max(self.high_score, self.score)
         self.score = 0
         self.lines = 0
         self.level = 1
@@ -59,11 +62,9 @@ class Tetris:
         off_x, off_y = offset
         for cy, row in enumerate(shape):
             for cx, cell in enumerate(row):
-                try:
-                    if cell and self.board[ cy + off_y ][ cx + off_x ]:
-                        return True
-                except IndexError:
-                    return True
+                outerBounce = (cy + off_y >= self.board.shape[0] or cx + off_x >= self.board.shape[1])
+                if cell and (outerBounce or self.board[cy + off_y][cx + off_x]):
+                    return True                
         return False
 
     def remove_row(self, row):
@@ -114,7 +115,7 @@ class Tetris:
 
     def add_points(self, lines_cleared):
         self.lines += lines_cleared
-        self.score += points[lines_cleared] * self.level
+        self.score += line_points[lines_cleared] * self.level
 
     def evaluate_position(self):
         if self.check_collision(self.shape, (self.shape_x, self.shape_y)):
@@ -137,9 +138,8 @@ class Tetris:
             self.shape = shape
 
     def soft_drop(self):
-        while not self.check_collision(self.shape, (self.shape_x, self.shape_y)):
+        while not self.check_collision(self.shape, (self.shape_x, self.shape_y + 1)):
             self.shape_y += 1
-        self.shape_y -= 1
 
     def hard_drop(self):
         self.soft_drop()
