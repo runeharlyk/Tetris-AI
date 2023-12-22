@@ -1,4 +1,3 @@
-from random import randrange as rand
 import pygame, sys
 import numpy as np
 
@@ -53,8 +52,8 @@ class Tetris:
         self.next_shapes = []
         self.new_shape()
 
-    def rotate_clockwise(self):
-        new_shape = np.rot90(self.shape, -1)
+    def rotate_clockwise(self, times=1):
+        new_shape = np.rot90(self.shape, times * -1)
         if not self.check_collision(new_shape, (self.shape_x, self.shape_y)):
             self.shape = new_shape
 
@@ -68,7 +67,7 @@ class Tetris:
         return np.any(np.logical_and(shape, board_area))
 
     def remove_row(self, row):
-        new_row = np.zeros((1, self.board.shape[1]))
+        new_row = np.zeros((1, self.board.shape[1]), dtype=self.board.dtype)
         self.board = np.vstack((new_row, np.delete(self.board, row, axis=0)))
     
     def place_shape(self, shape, shape_off):
@@ -83,8 +82,10 @@ class Tetris:
         return board
     
     def new_shape(self):
-        shape_index = np.random.randint(len(tetris_shapes))
-        self.shape = tetris_shapes[shape_index].copy()
+        for _ in range(4 - len(self.next_shapes)):
+            shape_index = np.random.randint(len(tetris_shapes))
+            self.next_shapes.append(tetris_shapes[shape_index].copy())
+        self.shape = self.next_shapes.pop(0)
         self.shape_x = self.cols // 2 - len(self.shape[0]) // 2
         self.shape_y = 0
         
@@ -146,6 +147,24 @@ class Tetris:
         self.soft_drop()
         self.down()
 
+    def count_holes(self, board):
+        cumsum_filled = np.cumsum(board != 0, axis=0)
+        return np.sum((board == 0) & (cumsum_filled > 0))
+    
+    def calculate_height_and_bumpiness(self, board):
+        heights = np.max(np.where(board != 0, len(board) - np.arange(len(board))[:, None], 0), axis=0)
+        total_height = np.max(heights)
+        bumpiness = np.sum(np.abs(np.diff(heights)))
+
+        return total_height, bumpiness
+
+    def get_state(self, board):
+        cleared_lines = 0
+        holes = self.count_holes(board)
+
+        bumpiness, height = self.calculate_height_and_bumpiness(board)
+
+        return np.array([cleared_lines, holes, bumpiness, height])
     # def step(self, action):
 
 
