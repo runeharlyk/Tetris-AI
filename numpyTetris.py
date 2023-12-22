@@ -120,14 +120,8 @@ class Tetris:
             y += 1
         return y
     
-    def __remove_row(self, board, row):
-        new_row = np.zeros((1, board.shape[1]), dtype=board.dtype)
-        board = np.vstack((new_row, np.delete(board, row, axis=0)))
-
     def __new_board(self):
-        board = np.zeros((self.rows + 1, self.cols), dtype=int)
-        board[-1] = 1
-        return board
+        return np.zeros((self.rows, self.cols), dtype=int)
     
     def __add_points(self, lines_cleared):
         self.lines += lines_cleared
@@ -145,16 +139,13 @@ class Tetris:
             self.done = True   
 
     def __clear_lines(self, board):
-        cleared = 0
-        while True:
-            for i, row in enumerate(board[:-1]):
-                if 0 not in row:
-                    cleared += 1
-                    self.__remove_row(board, i)
-                    break
-            else:
-                break
-        return cleared
+        full_rows = np.all(board != 0, axis=1)
+        num_full_rows = np.sum(full_rows)
+        if num_full_rows == 0: return 0
+        non_full_rows = np.where(~full_rows)[0]
+        board[num_full_rows:] = board[non_full_rows]
+        board[:num_full_rows] = 0
+        return int(num_full_rows)
 
     def __evaluate_position(self):
         if not self.__check_collision(self.board, self.shape, (self.shape_x, self.shape_y)): return
