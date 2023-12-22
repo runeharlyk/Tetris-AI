@@ -43,21 +43,21 @@ class Tetris:
 
     def reset(self):
         self.done = False
-        self.board = self.__new_board()
+        self.board = self._new_board()
         self.high_score = max(self.high_score, self.score)
         self.score = 0
         self.lines = 0
         self.level = 1
         self.held_shapes = []
         self.next_shapes = []
-        self.__get_new_shapes()
+        self._get_new_shapes()
 
     # Heuristics
-    def __count_holes(self, board):
+    def _count_holes(self, board):
         cumsum_filled = np.cumsum(board != 0, axis=0)
         return np.sum((board == 0) & (cumsum_filled > 0))
     
-    def __calculate_height_and_bumpiness(self, board):
+    def _calculate_height_and_bumpiness(self, board):
         heights = np.max(np.where(board != 0, len(board) - np.arange(len(board))[:, None], 0), axis=0)
         total_height = np.max(heights)
         bumpiness = np.sum(np.abs(np.diff(heights)))
@@ -66,8 +66,8 @@ class Tetris:
     
     def get_state(self, board):
         cleared_lines = 0
-        holes = self.__count_holes(board)
-        bumpiness, height = self.__calculate_height_and_bumpiness(board)
+        holes = self._count_holes(board)
+        bumpiness, height = self._calculate_height_and_bumpiness(board)
 
         return np.array([cleared_lines, holes, bumpiness, height])
 
@@ -77,10 +77,10 @@ class Tetris:
     
     # Private tetris
 
-    def __rotate_clockwise(self, shape, times=1):
+    def _rotate_clockwise(self, shape, times=1):
         return np.rot90(shape, times * -1)
 
-    def __check_collision(self, board, shape, offset):
+    def _check_collision(self, board, shape, offset):
         off_x, off_y = offset
         shape_height, shape_width = shape.shape
         rows, cols = board.shape
@@ -90,19 +90,19 @@ class Tetris:
 
         return np.any(np.logical_and(shape, board_area))
 
-    def __place_shape(self, board, shape, shape_off):
+    def _place_shape(self, board, shape, shape_off):
         off_x, off_y = shape_off
         for cy, row in enumerate(shape):
             for cx, val in enumerate(row):
                 board[cy+off_y-1][cx+off_x] += val
 
-    def __rotate(self, board, shape, offset, times=1):
-        new_shape = self.__rotate_clockwise(shape, times)
-        if not self.__check_collision(board, new_shape, offset):
+    def _rotate(self, board, shape, offset, times=1):
+        new_shape = self._rotate_clockwise(shape, times)
+        if not self._check_collision(board, new_shape, offset):
             return new_shape
         return shape
     
-    def __move(self, board, shape, offset, delta_x):
+    def _move(self, board, shape, offset, delta_x):
         shape_x, shape_y = offset
         new_x = shape_x + delta_x
         _, cols = board.shape
@@ -110,37 +110,37 @@ class Tetris:
             new_x = 0
         if new_x > cols - len(shape[0]):
             new_x = cols - len(shape[0])
-        if not self.__check_collision(board, shape, (new_x, shape_y)):
+        if not self._check_collision(board, shape, (new_x, shape_y)):
             shape_x = new_x
         return shape_x
 
-    def __soft_drop(self, board, shape, offset):
+    def _soft_drop(self, board, shape, offset):
         x, y = offset
-        while not self.__check_collision(board, shape, (x, y + 1)):
+        while not self._check_collision(board, shape, (x, y + 1)):
             y += 1
         return y
     
-    def __new_board(self):
+    def _new_board(self):
         return np.zeros((self.rows, self.cols), dtype=int)
     
-    def __add_points(self, lines_cleared):
+    def _add_points(self, lines_cleared):
         self.lines += lines_cleared
         self.score += line_points[lines_cleared] * self.level
 
-    def __get_new_random_shape(self):
+    def _get_new_random_shape(self):
         shape_index = np.random.randint(len(tetris_shapes))
         return tetris_shapes[shape_index].copy()
 
-    def __get_new_shapes(self):
-        self.next_shapes.extend([self.__get_new_random_shape() for _ in range(4 - len(self.next_shapes))])
+    def _get_new_shapes(self):
+        self.next_shapes.extend([self._get_new_random_shape() for _ in range(4 - len(self.next_shapes))])
         self.shape = self.next_shapes.pop(0)
         self.shape_x = self.cols // 2 - len(self.shape[0]) // 2
         self.shape_y = 0
-        
-        if self.__check_collision(self.board, self.shape, (self.shape_x, self.shape_y)):
+
+        if self._check_collision(self.board, self.shape, (self.shape_x, self.shape_y)):
             self.done = True   
 
-    def __clear_lines(self, board):
+    def _clear_lines(self, board):
         full_rows = np.all(board != 0, axis=1)
         num_full_rows = np.sum(full_rows)
         if num_full_rows == 0: return 0
@@ -149,28 +149,28 @@ class Tetris:
         board[:num_full_rows] = 0
         return int(num_full_rows)
 
-    def __evaluate_position(self):
-        if not self.__check_collision(self.board, self.shape, (self.shape_x, self.shape_y)): return
+    def _evaluate_position(self):
+        if not self._check_collision(self.board, self.shape, (self.shape_x, self.shape_y)): return
 
-        self.__place_shape(self.board, self.shape, (self.shape_x, self.shape_y))
-        self.__new_shape()
-        cleared_lines = self.__clear_lines(self.board)
-        self.__add_points(cleared_lines)
+        self._place_shape(self.board, self.shape, (self.shape_x, self.shape_y))
+        self._get_new_shapes()
+        cleared_lines = self._clear_lines(self.board)
+        self._add_points(cleared_lines)
         print(self.get_state(self.board))
 
     # Actions
     def rotate(self, times=1):
         if self.done: return
-        self.shape = self.__rotate(self.board, self.shape, (self.shape_x, self.shape_y), times)
+        self.shape = self._rotate(self.board, self.shape, (self.shape_x, self.shape_y), times)
 
     def move(self, delta_x):
         if self.done: return
-        self.shape_x = self.__move(self.board, self.shape, (self.shape_x, self.shape_y), delta_x)
+        self.shape_x = self._move(self.board, self.shape, (self.shape_x, self.shape_y), delta_x)
 
     def hold(self):
         if not self.held_shapes:
             self.held_shapes.append(self.shape)
-            self.__new_shape()    
+            self._get_new_shapes()    
         else:
             shape = self.held_shapes.pop()
             self.held_shapes.append(self.shape)
@@ -178,11 +178,11 @@ class Tetris:
 
     def down(self):
         self.shape_y += 1
-        return self.__evaluate_position()
+        return self._evaluate_position()
 
     def soft_drop(self):
-        self.shape_y = self.__soft_drop(self.board, self.shape, (self.shape_x, self.shape_y))
-        return self.__evaluate_position()
+        self.shape_y = self._soft_drop(self.board, self.shape, (self.shape_x, self.shape_y))
+        return self._evaluate_position()
 
     def hard_drop(self):
         self.soft_drop()
