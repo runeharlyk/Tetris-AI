@@ -53,19 +53,19 @@ class Tetris:
         self._get_new_shapes()
 
     # Heuristics
-    def _count_holes(self, board):
+    def _count_holes(self, board:np.ndarray):
         cumsum_filled = np.cumsum(board != 0, axis=0)
         return np.sum((board == 0) & (cumsum_filled > 0))
     
-    def _calculate_height_and_bumpiness(self, board):
+    def _calculate_height_and_bumpiness(self, board:np.ndarray):
         heights = np.max(np.where(board != 0, len(board) - np.arange(len(board))[:, None], 0), axis=0)
         total_height = np.max(heights)
         bumpiness = np.sum(np.abs(np.diff(heights)))
 
         return total_height, bumpiness
     
-    def get_state(self, board):
         cleared_lines = 0
+    def get_state(self, board:np.ndarray):
         holes = self._count_holes(board)
         bumpiness, height = self._calculate_height_and_bumpiness(board)
 
@@ -77,10 +77,10 @@ class Tetris:
     
     # Private tetris
 
-    def _rotate_clockwise(self, shape, times=1):
+    def _rotate_clockwise(self, shape:np.ndarray, times:int=1):
         return np.rot90(shape, times * -1)
 
-    def _check_collision(self, board, shape, offset):
+    def _check_collision(self, board:np.ndarray, shape:np.ndarray, offset:tuple):
         off_x, off_y = offset
         shape_height, shape_width = shape.shape
         rows, cols = board.shape
@@ -90,19 +90,18 @@ class Tetris:
 
         return np.any(np.logical_and(shape, board_area))
 
-    def _place_shape(self, board, shape, shape_off):
-        off_x, off_y = shape_off
+    def _place_shape(self, board:np.ndarray, shape:np.ndarray, offset:tuple):
+        off_x, off_y = offset
         for cy, row in enumerate(shape):
             for cx, val in enumerate(row):
                 board[cy+off_y-1][cx+off_x] += val
 
-    def _rotate(self, board, shape, offset, times=1):
+    def _rotate(self, board:np.ndarray, shape:np.ndarray, offset:tuple, times:int=1):
         new_shape = self._rotate_clockwise(shape, times)
         if not self._check_collision(board, new_shape, offset):
             return new_shape
         return shape
     
-    def _move(self, board, shape, offset, delta_x):
         shape_x, shape_y = offset
         new_x = shape_x + delta_x
         _, cols = board.shape
@@ -114,7 +113,8 @@ class Tetris:
             shape_x = new_x
         return shape_x
 
-    def _soft_drop(self, board, shape, offset):
+    def _move(self, board:np.ndarray, shape:np.ndarray, offset:tuple, delta_x:int):
+    def _soft_drop(self, board:np.ndarray, shape:np.ndarray, offset:tuple):
         x, y = offset
         while not self._check_collision(board, shape, (x, y + 1)):
             y += 1
@@ -123,7 +123,7 @@ class Tetris:
     def _new_board(self):
         return np.zeros((self.rows, self.cols), dtype=int)
     
-    def _add_points(self, lines_cleared):
+    def _add_points(self, lines_cleared:int):
         self.lines += lines_cleared
         self.score += line_points[lines_cleared] * self.level
 
@@ -140,7 +140,7 @@ class Tetris:
         if self._check_collision(self.board, self.shape, (self.shape_x, self.shape_y)):
             self.done = True   
 
-    def _clear_lines(self, board):
+    def _clear_lines(self, board:np.ndarray):
         full_rows = np.all(board != 0, axis=1)
         num_full_rows = np.sum(full_rows)
         if num_full_rows == 0: return 0
@@ -159,11 +159,11 @@ class Tetris:
         print(self.get_state(self.board))
 
     # Actions
-    def rotate(self, times=1):
+    def rotate(self, times:int=1):
         if self.done: return
         self.shape = self._rotate(self.board, self.shape, (self.shape_x, self.shape_y), times)
 
-    def move(self, delta_x):
+    def move(self, delta_x:int):
         if self.done: return
         self.shape_x = self._move(self.board, self.shape, (self.shape_x, self.shape_y), delta_x)
 
@@ -188,7 +188,7 @@ class Tetris:
         self.soft_drop()
         return self.down()
 
-    def step(self, delta_x, rotation):
+    def step(self, delta_x:int, rotation:int):
         self.rotate(rotation)
         self.move(delta_x)
         return self.hard_drop()
