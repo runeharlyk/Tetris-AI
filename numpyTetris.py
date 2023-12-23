@@ -95,19 +95,23 @@ class Tetris:
         board = self.board.copy()
         _, cols = board.shape
         rotations = []
+        str_states = []
 
         for rotation in range(4):
             rotated = self._rotate(board, shape, (shape_x, 0), rotation)
             if str(rotated) in rotations:
                 continue
             rotations.append(str(rotated))
-            max_x = int(cols - rotated.shape[1])
+            max_x = int(cols - rotated.shape[1] + 1)
             for x in range(max_x):
-                pos = [x, 0]
-                while not self._check_collision(board, rotated, pos):
-                    pos[1] += 1
-                pos[1] -= 1
-                states[(x, rotation)] = self._get_current_state(board, rotated, pos)
+                y = 0
+                while not self._check_collision(board, rotated, (x, y + 1)):
+                    y += 1
+                state = self._get_current_state(board[:], rotated, (x, y))
+                if str(state) in str_states:
+                    continue
+                str_states.append(str(state))
+                states[(x, rotation)] = state
 
         return states
 
@@ -190,7 +194,6 @@ class Tetris:
         self._get_new_shapes()
         cleared_lines = self._clear_lines(self.board)
         self._add_points(cleared_lines)
-        print(self.get_state(self.board))
 
     # Actions
     def rotate(self, times:int=1):
@@ -226,8 +229,6 @@ class Tetris:
         self.rotate(rotation)
         self.move(delta_x - self.shape_x)
         return self.hard_drop()
-
-
 
 
 class TetrisApp(object):
@@ -301,9 +302,8 @@ class TetrisApp(object):
 
     def guess(self):
         states = self.game.get_possible_states() # cleared_lines, holes, bumpiness, height
-        best_action = max(states.items(), key=lambda x: (x[1][0], x[1][3], x[1][2], x[1][1]))[0]
+        best_action = max(states.items(), key=lambda x: (x[1][0], x[1][1]*-1 + x[1][3]*-0.5 + x[1][2]*-1))[0]
         self.game.step(*best_action)
-        
     def run(self):
         self.key_actions = {
             'ESCAPE':   self.quit,
