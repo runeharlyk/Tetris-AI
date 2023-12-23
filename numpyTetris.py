@@ -224,53 +224,48 @@ class Tetris:
 
 class TetrisApp(object):
     def __init__(self):
-        self.game = Tetris(config['cols'], config['rows'])
+        self.cell_size = config['cell_size']
+        self.cols = config['cols']
+        self.rows = config['rows']
+
+        self.game = Tetris(self.cols, self.rows)
 
         pygame.init()
         pygame.key.set_repeat(250,25)
-        self.width = config['cell_size']*config['cols'] + config['cell_size'] * 10
-        self.height = config['cell_size']*config['rows'] + config['cell_size']
+        self.width  = self.cols * self.cell_size + self.cell_size * 10
+        self.height = self.rows * self.cell_size + self.cell_size
         
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.event.set_blocked(pygame.MOUSEMOTION) 
     
     def top_msg(self, msg):
-        msg_image =  pygame.font.Font(pygame.font.get_default_font(), 12).render(msg, False, (255,255,255), (0,0,0))
-        msgim_center_x, msgim_center_y = msg_image.get_size()
+        msg_image = self.font_img(msg)
+        msgim_center_x, _ = msg_image.get_size()
         msgim_center_x //= 2
     
         self.screen.blit(msg_image, (self.width // 2-msgim_center_x, 0))
 
+    def font_img(self, text):
+        return pygame.font.Font(pygame.font.get_default_font(), 12).render(text, False, (255,255,255), (0,0,0))
+
     def center_msg(self, msg):
         for i, line in enumerate(msg.splitlines()):
-            msg_image =  pygame.font.Font(
-                pygame.font.get_default_font(), 12).render(
-                    line, False, (255,255,255), (0,0,0))
+            msg_image = self.font_img(line)
         
             msgim_center_x, msgim_center_y = msg_image.get_size()
             msgim_center_x //= 2
             msgim_center_y //= 2
         
-            self.screen.blit(msg_image, (
-              self.width // 2-msgim_center_x,
-              self.height // 2-msgim_center_y+i*22))
+            self.screen.blit(msg_image, (self.width // 2-msgim_center_x, self.height // 2-msgim_center_y+i*22))
     
     def draw_matrix(self, matrix, offset):
         off_x, off_y  = offset
         for y, row in enumerate(matrix):
             for x, val in enumerate(row):
-                if val:
-                    pygame.draw.rect(
-                        self.screen,
-                        colors[int(val)],
-                        pygame.Rect(
-                            (off_x+x) *
-                              config['cell_size'],
-                            (off_y+y) *
-                              config['cell_size'], 
-                            config['cell_size'],
-                            config['cell_size']),0)
-    
+                if not val: continue
+                color = colors[int(val)]
+                rect = pygame.Rect((off_x+x) * self.cell_size, (off_y+y) * self.cell_size, self.cell_size, self.cell_size)
+                pygame.draw.rect(self.screen, color, rect,0)
 
     def quit(self):
         self.center_msg("Exiting...")
@@ -278,15 +273,15 @@ class TetrisApp(object):
         sys.exit()
 
     def should_play(self):
-        return not self.gameover and not self.paused
+        return not self.game.done and not self.paused
     
     def down(self):
         if not self.should_play(): return
         self.game.down()
     
     def rotate_stone(self):
-        if self.gameover or self.paused: return
-        self.game.rotate_clockwise()
+        if not self.should_play(): return
+        self.game.rotate()
     
     def toggle_pause(self):
         self.paused = not self.paused
@@ -303,13 +298,13 @@ class TetrisApp(object):
             'DOWN':     self.down,
             'UP':       self.rotate_stone,
             'p':        self.toggle_pause,
+            't':        lambda: print(self.game.get_possible_states()),
             'c':        self.game.hold,
             'v':        self.game.soft_drop,
             'b':        self.game.hard_drop,
             'SPACE':    self.start_game
         }
         
-        self.gameover = False
         self.paused = False
         
         pygame.time.set_timer(pygame.USEREVENT+1, config['delay'])
