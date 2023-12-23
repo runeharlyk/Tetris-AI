@@ -32,19 +32,33 @@ class Cost:
         cleared_lines_reward = cleared_lines ** 2 * 10 + 1
         return death_penalty + cleared_lines_reward + state_penalties
 
-class Agent:
+class DumbAgent:
+    def __init__(self, state_size):
+        self.weights = np.array([-1, -0.5, -0.1])
+
+    def act(self, states):
+        return max(states.items(), key=lambda x: (x[1][0], sum(x[1][1:] * self.weights)))[0]
+
+
+    def add_to_memory(self, current_state, next_state, reward, done):
+        pass
+
+    def replay(self):
+        pass
+
+class DQLAgent:
     def __init__(self, state_size, path=None, lr=0.001):
         self.costCalc = Cost()
         self.state_size = state_size
         self.memory = deque(maxlen=30000)
         self.discount = 0.95
-        self.epsilon = 0.25
+        self.epsilon = 1.0
         self.epsilon_min = 0.05 
-        self.epsilon_end_episode = 400
+        self.epsilon_end_episode = 2000
         self.epsilon_decay = (self.epsilon - self.epsilon_min) / self.epsilon_end_episode
 
-        self.batch_size = 100
-        self.replay_start = 0 # self.batch_size
+        self.batch_size = 512
+        self.replay_start = self.batch_size
 
         self.model = Net(state_size)
         if path and os.path.isfile(path):
@@ -75,20 +89,20 @@ class Agent:
 
         batch = random.sample(self.memory, min(len(self.memory), self.batch_size))
 
-        next_states = torch.FloatTensor([s[1] for s in batch])
+        next_states = torch.FloatTensor(np.array([s[1] for s in batch]))
         next_qvalues = self.model(next_states).detach()
 
-        x = []
-        y = []
+        x = np.zeros((len(batch), self.state_size))
+        y = np.zeros(len(batch))
 
         for i, b in enumerate(batch):
             state, _, reward, done = b
             new_q = reward
             if not done:
                 new_q += self.discount * next_qvalues[i]
-
-            x.append(state)
-            y.append(new_q)
+            
+            x[i] = state
+            y[i] = new_q
 
         x_tensor = torch.FloatTensor(x)
         y_tensor = torch.FloatTensor(y)

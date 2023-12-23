@@ -1,44 +1,44 @@
-import logging
-from game import Tetris
-from agent import Agent
-from Renderer.InvincibleRenderer import InvincibleRenderer
-from Renderer.CVRenderer import CVRenderer
-from Renderer.PyGameRenderer import PyGameRenderer
-
+from config import *
 from controls import Controller
+from game import Tetris
+from renderer import PyGameRenderer
 
-logging.basicConfig(level=logging.DEBUG)
+class TetrisApp():
+    def __init__(self, cols, rows) -> None:
+        self.env = Tetris(cols, rows)
+        
+        self.key_actions = {
+            "quit":     self.quit,
+            "left":     lambda: self.env.move(-1),
+            "right":    lambda: self.env.move(1),
+            "rotate_cw":self.env.rotate,
+            "soft_drop":self.env.soft_drop,
+            "hard_drop":self.env.hard_drop,
+            "hold":     self.env.hold,
+            "pause":    self.pause,
+            "down":     self.env.down
+        }
 
-height, width = 20, 10
+        self.renderer = PyGameRenderer(config['cell_size'])
+        self.renderer.render(self.env) 
+    
+        self.controller = Controller(self.key_actions)
+        self.controller.addEvent(config['delay'])
 
-env = Tetris(width, height)
-controller = Controller()
-renderer = PyGameRenderer()
+    def quit(self):
+        self.exit_program = True
 
-def start():
-    exit_program = False
-    score = 0
-    while not exit_program:
-        renderer.render(env, score) 
+    def pause(self):
+        self.env.paused = not self.env.paused
 
-        next_states = env.get_next_states()
+    def start(self):
+        self.exit_program = False
+        while not self.exit_program:
+            self.renderer.render(self.env) 
+            self.controller.handleEvents()
+            self.renderer.wait(1)
 
-        inputs = controller.input()
-        exit_program = "quit" in inputs
-
-        if inputs:
-            print(inputs)
-            print(next_states)
-
-        # if not next_states: break
-
-        best_action = None # next(action for action, state in next_states.items())
-
-        _, score, _, done = env.step(best_action)
-
-        renderer.wait(5)
-
-    env.reset()
 
 if __name__ == '__main__':
-    start()
+    app = TetrisApp(config['cols'], config['rows'])
+    app.start()

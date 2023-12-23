@@ -1,80 +1,73 @@
-from game import Tetris
-from agent import Agent
-from Renderer.InvincibleRenderer import InvincibleRenderer
-from Renderer.CVRenderer import CVRenderer
-from Renderer.PyGameRenderer import PyGameRenderer
-from plot import ScatterPlot
-
+from config import *
 from controls import Controller
+from game import Tetris
+from renderer import PyGameRenderer
+from agent import DQLAgent, DumbAgent
 
-# https://github.com/andreanlay/tetris-ai-deep-reinforcement-learning/tree/master
-
-height, width = 20, 10
-
-env = Tetris(width, height)
-
-controller = Controller()
-
-plot = ScatterPlot("", "", "") 
-# Initialize training variable
-max_episode = 1500
-max_steps = 25000
-
-# model_path = f'model_{width}_{height}.pt'
-
-agent = Agent(4)
-
-renderer = PyGameRenderer()
-
-def run_episodes():
-    rewards = [run_episode(i) for i in range(max_episode)]
-    return rewards
-
-def run_episode(episode):
-    current_state = env.reset()
-    score = 0
-    total_reward = 0
-    done = False
-    max_steps = 25000
-    steps = 0
-
-    while not done and steps < max_steps:
-        renderer.render(env, score) 
-
-        next_states = env.get_next_states()
-
-        inputs = controller.input()
-        if "quit" in inputs:    
-            quit()
+class Trainer():
+    def __init__(self, env, agent) -> None:
+        self.env = env
+        self.agent = agent
         
-        if not next_states: break
+        self.key_actions = {
+            "quit":     self.quit,
+            "pause":    self.pause,
+            "down":     self.env.down
+        }
 
-        best_action = agent.act(next_states)
+        self.renderer = PyGameRenderer(config['cell_size'])
+        self.renderer.render(self.env)
+    
+        self.controller = Controller(self.key_actions)
+        self.controller.addEvent(config['delay'])
 
-        state, score, cleared_lines, done = env.step(best_action)
-        reward = agent.costCalc.calculate(state, cleared_lines, done)
-        total_reward += reward
+    def quit(self):
+        self.exit_program = True
 
-        agent.add_to_memory(current_state, next_states[best_action], reward, done)
+    def pause(self):
+        self.env.paused = not self.env.paused
 
-        current_state = next_states[best_action]
+    def run_episodes(self, max_episode, max_steps):
+        rewards = [self.run_episode(i, max_steps) for i in range(max_episode)]
+        return rewards
 
-        renderer.wait(1)
-        steps += 1
+    def run_episode(self, episode, max_steps):
+        print(f'Running: {episode}')
+        current_state = self.env.reset()
+        score = 0
+        total_reward = 0
+        done = False
+        max_steps = 25000
+        step = 0
+        self.exit_program = False
+        while not self.exit_program:
+            self.renderer.render(self.env) 
+            next_states = self.env.get_possible_states()
+            best_action = agent.act(next_states)
+            done, score, reward = env.step(*best_action)
+            total_reward += reward
 
-    agent.replay()
+            if done or step > max_steps: break
+            self.controller.handleEvents()
 
-    if agent.epsilon > agent.epsilon_min:
-        agent.epsilon -= agent.epsilon_decay
+            agent.add_to_memory(current_state, next_states[best_action], reward, done)
 
-    print(f'Run episode {episode:02d}\t score:{score} \t total_reward:{total_reward}')
-    plot.add_point(episode, score, True)
-    return score
+            current_state = next_states[best_action]
+
+            step += 1
+            self.renderer.wait(1)
+
+        agent.replay()
+
+        if agent.epsilon > agent.epsilon_min:
+            agent.epsilon -= agent.epsilon_decay
+        
+        return score
 
 if __name__ == '__main__':
-    try:
-        run_episodes()
-    finally:
-        # agent.save(model_path)
-        # plot.update()
-        plot.freeze()
+    env = Tetris(config['cols'], config['rows'])
+    # agent = DumbAgent(4)
+    agent = DQLAgent(4)
+
+    trainer = Trainer(env, agent)
+    trainer.run_episodes(1500, 25000)

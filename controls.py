@@ -1,38 +1,21 @@
 import pygame
-from config import game_actions, env_actions
-import logging
+from config import key_actions
 
 class Controller:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, actions) -> None:
+        self.actions = actions
 
-    def input(self):
-        out = []
-
+    def handleEvents(self):
         for event in pygame.event.get():
+            if event.type == pygame.USEREVENT+1:
+                self.actions['down']()
             if event.type == pygame.QUIT:
-                out.append(env_actions[0])
-                break
+                self.actions['quit']()
             if not event.type == pygame.KEYDOWN: 
                 continue
+            actions = [action for action, events in key_actions.items() if event.key in events]
+            for action in actions:
+                self.actions[action]()
 
-            match event.key:
-                case pygame.K_ESCAPE:
-                    out.append(env_actions[0])
-                case pygame.K_LEFT:
-                    out.append(game_actions[0])
-                case pygame.K_RIGHT:
-                    out.append(game_actions[1])
-                case pygame.K_UP:
-                    out.append(game_actions[2])
-                case pygame.K_LCTRL:
-                    out.append(game_actions[2])
-                case pygame.K_DOWN:
-                    out.append(game_actions[4])
-                case pygame.K_SPACE:
-                    out.append(game_actions[5])
-                case pygame.K_c:
-                    out.append(game_actions[6])
-        if out:
-            logging.debug('Inputs:%s', ''.join(list(set(out))))
-        return list(set(out))
+    def addEvent(self, delay):
+        pygame.time.set_timer(pygame.USEREVENT+1, delay)
