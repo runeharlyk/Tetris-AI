@@ -90,9 +90,13 @@ class Tetris:
         shape_x = self.shape_x
         board = self.board.copy()
         _, cols = board.shape
+        rotations = []
 
         for rotation in range(4):
             rotated = self._rotate(board, shape, (shape_x, 0), rotation)
+            if str(rotated) in rotations:
+                continue
+            rotations.append(str(rotated))
             max_x = int(cols - rotated.shape[1])
             for x in range(max_x):
                 pos = [x, 0]
