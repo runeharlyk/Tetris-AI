@@ -224,7 +224,7 @@ class Tetris:
 
     def step(self, delta_x:int, rotation:int):
         self.rotate(rotation)
-        self.move(delta_x)
+        self.move(delta_x - self.shape_x)
         return self.hard_drop()
 
 
