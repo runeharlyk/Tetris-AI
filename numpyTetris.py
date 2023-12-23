@@ -53,9 +53,13 @@ class Tetris:
         self._get_new_shapes()
 
     # Heuristics
-    def _count_holes(self, board:np.ndarray):
-        cumsum_filled = np.cumsum(board != 0, axis=0)
-        return np.sum((board == 0) & (cumsum_filled > 0))
+    def _count_bridges(self, board:np.ndarray):
+        count = 0
+        for col in range(board.shape[1]):
+            if 1 in board[:, col]:
+                bridge_row = np.where(board[:, col] == 1)[0][0]  # Find the row index of the bridge
+                count += np.sum(board[bridge_row+1:, col] == 0)  # Count the 0s below the bridge
+        return count
     
     def _calculate_height_and_bumpiness(self, board:np.ndarray):
         heights = np.max(np.where(board != 0, len(board) - np.arange(len(board))[:, None], 0), axis=0)
@@ -72,8 +76,8 @@ class Tetris:
         new_board = board.copy()
         self._place_shape(new_board, shape, offset)
         cleared_lines = self._count_full_lines(new_board)
-        holes = self._count_holes(board)
-        bumpiness, height = self._calculate_height_and_bumpiness(board)
+        holes = self._count_bridges(new_board)
+        bumpiness, height = self._calculate_height_and_bumpiness(new_board)
 
         return np.array([cleared_lines, holes, bumpiness, height])
 
