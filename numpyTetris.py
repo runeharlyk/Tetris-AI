@@ -290,6 +290,12 @@ class TetrisApp(object):
         if self.game.done:
             self.game.reset()
     
+
+    def guess(self):
+        states = self.game.get_possible_states() # cleared_lines, holes, bumpiness, height
+        best_action = max(states.items(), key=lambda x: (x[1][0], x[1][3], x[1][2], x[1][1]))[0]
+        self.game.step(*best_action)
+        
     def run(self):
         self.key_actions = {
             'ESCAPE':   self.quit,
@@ -301,6 +307,7 @@ class TetrisApp(object):
             't':        lambda: print(self.game.get_possible_states()),
             'c':        self.game.hold,
             'v':        self.game.soft_drop,
+            'g':        self.guess,
             'b':        self.game.hard_drop,
             'SPACE':    self.start_game
         }
