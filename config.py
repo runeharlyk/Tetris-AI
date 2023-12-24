@@ -9,7 +9,8 @@ key_actions = {
     "hard_drop":[pygame.K_w],
     "hold":     [pygame.K_SPACE],
     "pause":    [pygame.K_PAUSE],
-    "down":     [pygame.USEREVENT]
+    "down":     [pygame.USEREVENT],
+    "reset":     [pygame.K_r],
 }
 
 config = {

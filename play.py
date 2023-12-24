@@ -15,6 +15,7 @@ class TetrisApp():
             "soft_drop":self.env.soft_drop,
             "hard_drop":self.env.hard_drop,
             "hold":     self.env.hold,
+            "reset":    self.env.reset,
             "pause":    self.pause,
             "down":     self.env.down
         }
