@@ -11,9 +11,9 @@
 ### Agent
 
 * Deep q-learning
+* Simple
 * Genetic algorithm
 * Monto-carlo-search
-* Simple
 
 #### Cost & reward
 
@@ -32,5 +32,7 @@ O-Notation
 
 ## TODO
 
-1. Generate states, without duplicates
-python decorator for logging function calls
+[x] Generate states, without duplicates
+[ ] python decorator for logging function calls
+[x] Number of sims per second printed every second
+[ ] Rolling average
