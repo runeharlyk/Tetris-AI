@@ -1,7 +1,18 @@
 import pygame
 
+config = {
+    'cell_size':   20,
+    'cols':        8,
+    'rows':        16,
+    'down_delay':  750,
+    'delay_id':    1,
+    'print_id':    2,
+    'print_delay': 1000,
+    'maxfps':       30
+}
+
 key_actions = {
-    "quit":     [pygame.K_ESCAPE],
+    "quit":     [pygame.K_ESCAPE, pygame.QUIT],
     "left":     [pygame.K_a, pygame.K_LEFT],
     "right":    [pygame.K_d, pygame.K_RIGHT],
     "rotate_cw":[pygame.K_j, pygame.K_UP],
@@ -9,18 +20,11 @@ key_actions = {
     "hard_drop":[pygame.K_w],
     "hold":     [pygame.K_SPACE],
     "pause":    [pygame.K_PAUSE],
-    "down":     [pygame.USEREVENT],
-    "reset":     [pygame.K_r],
-    "render":     [pygame.K_m],
+    "down":     [pygame.USEREVENT+config['delay_id']],
+    "reset":    [pygame.K_r],
+    "render":   [pygame.K_m],
     "plot":     [pygame.K_n],
-}
-
-config = {
-    'cell_size':    20,
-    'cols':        8,
-    'rows':        16,
-    'delay':    750,
-    'maxfps':    30
+    "print":    [pygame.USEREVENT+config['print_id']],
 }
 
 colors = [

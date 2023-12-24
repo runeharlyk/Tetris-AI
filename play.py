@@ -17,20 +17,25 @@ class TetrisApp():
             "hold":     self.env.hold,
             "reset":    self.env.reset,
             "pause":    self.pause,
-            "down":     self.env.down
+            "down":     self.env.down,
+            "print":     self.print
         }
 
         self.renderer = PyGameRenderer(config['cell_size'])
         self.renderer.render(self.env) 
     
         self.controller = Controller(self.key_actions)
-        self.controller.addEvent(config['delay'])
+        self.controller.addEvent(config['delay_id'], config['down_delay'])
+        self.controller.addEvent(config['print_id'], config['print_delay'])
 
     def quit(self):
         self.exit_program = True
 
     def pause(self):
         self.env.paused = not self.env.paused
+
+    def print(self):
+        print(f'Lines:{self.env.score}\tPieces:{self.env.lines}')
 
     def start(self):
         self.exit_program = False

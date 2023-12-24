@@ -12,20 +12,24 @@ class Trainer():
         self.plot = ScatterPlot("", "", "") 
         self.render = True
         self.should_plot = True
+        self.played = self.last_played = 0
         
         self.key_actions = {
             "quit":     self.quit,
             "pause":    self.pause,
             "down":     self.env.down,
             "render":   self.toggle_render,
-            "plot":   self.toggle_plot
+            "plot":     self.toggle_plot,
+            "print":    self.print
+
         }
 
         self.renderer = PyGameRenderer(config['cell_size'])
         self.renderer.render(self.env)
     
         self.controller = Controller(self.key_actions)
-        self.controller.addEvent(config['delay'])
+        self.controller.addEvent(config['delay_id'], config['down_delay'])
+        self.controller.addEvent(config['print_id'], config['print_delay'])
 
     def toggle_render(self):
         self.render = not self.render
@@ -39,6 +43,12 @@ class Trainer():
     def pause(self):
         self.env.paused = not self.env.paused
 
+    def print(self):
+        games_per_sec = self.played - self.last_played
+        self.last_played = self.played
+        mean_score, std_score, max_score = self.plot.stats()
+        print(f'Games per second:{games_per_sec}\tMean:{mean_score}\tstd:{std_score}\tmax:{max_score}')
+
     def run_episodes(self, max_episode, max_steps):
         try:
             rewards = [self.run_episode(i, max_steps) for i in range(max_episode)]
@@ -47,6 +57,7 @@ class Trainer():
             return []
 
     def run_episode(self, episode, max_steps):
+        self.played = episode
         current_state = self.env.reset()
         score = 0
         total_reward = 0
@@ -75,7 +86,6 @@ class Trainer():
         agent.replay()
 
         self.plot.add_point(episode, score, self.should_plot)
-        # print(f'Run episode: {episode}\tscore:{score}')
         
         return score
 
