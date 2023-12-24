@@ -25,13 +25,26 @@ class PyGameRenderer():
                 self.center_msg("Paused")
             else:
                 self.top_msg(f'Score: {env.score}')
-                if env.held_shapes:
-                    self.draw_matrix(env.held_shapes[0], (1, 1))
+                self.draw_rect((255, 0, 0), 5, 0, env.cols, env.rows)
+                for i, shape in enumerate(env.held_shapes):
+                    self.draw_matrix(shape, (1, i*3 + 1))
                 self.draw_matrix(env.board, (5, 1))
-                self.draw_matrix(env.shape,
-                                    (env.shape_x + 5,
-                                    env.shape_y + 1))
+                self.draw_matrix(env.shape, (env.shape_x + 5, env.shape_y + 1))
+                for i, shape in enumerate(env.next_shapes):
+                    self.draw_matrix(shape, (env.board.shape[1]+6, i*3 + 1))
+                self.draw_grid()
         pygame.display.update()
+
+    def draw_rect(self, color, left, top, width, height):
+        cs = self.cell_size
+        pygame.draw.rect(self.screen, color, 
+                         pygame.Rect(left*cs, top*cs, width*cs, height*cs),  2)
+
+    def draw_grid(self):
+        for i in range(self.width // self.cell_size):
+            pygame.draw.line(self.screen, (0, 0, 0), (i * self.cell_size, 0), (i * self.cell_size, self.height * self.cell_size))
+        for i in range(self.height // self.cell_size):
+            pygame.draw.line(self.screen, (0, 0, 0), (0, i * self.cell_size), (self.width * self.cell_size, i * self.cell_size))
 
     def wait(self, ms):
         self.clock.tick(1000 / ms)
