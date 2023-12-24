@@ -5,18 +5,18 @@ class Controller:
     def __init__(self, actions) -> None:
         self.actions = actions
 
-    def handleEvents(self):
-        for event in pygame.event.get():
-            if event.type == pygame.USEREVENT+1:
-                self.actions['down']()
-            if event.type == pygame.QUIT:
-                self.actions['quit']()
-            if not event.type == pygame.KEYDOWN: 
-                continue
-            actions = [action for action, events in key_actions.items() if event.key in events]
-            for action in actions:
-                if action in self.actions:
-                    self.actions[action]()
+    def isValidAction(self, action, events, event):
+        return action in self.actions and (event.type in events or event.type == pygame.KEYDOWN and event.key in events)
 
-    def addEvent(self, delay):
-        pygame.time.set_timer(pygame.USEREVENT+1, delay)
+    def getActions(self):
+        for event in pygame.event.get():
+            for action, events in key_actions.items():
+                if self.isValidAction(action, events, event):
+                    yield self.actions[action]
+
+    def handleEvents(self):
+        for action in self.getActions():
+            action()
+
+    def addEvent(self, event_id:int, ms:int):
+        pygame.time.set_timer(pygame.USEREVENT+event_id, ms)
