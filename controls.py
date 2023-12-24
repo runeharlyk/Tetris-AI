@@ -15,7 +15,8 @@ class Controller:
                 continue
             actions = [action for action, events in key_actions.items() if event.key in events]
             for action in actions:
-                self.actions[action]()
+                if action in self.actions:
+                    self.actions[action]()
 
     def addEvent(self, delay):
         pygame.time.set_timer(pygame.USEREVENT+1, delay)
