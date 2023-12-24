@@ -11,6 +11,8 @@ key_actions = {
     "pause":    [pygame.K_PAUSE],
     "down":     [pygame.USEREVENT],
     "reset":     [pygame.K_r],
+    "render":     [pygame.K_m],
+    "plot":     [pygame.K_n],
 }
 
 config = {

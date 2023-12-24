@@ -10,11 +10,15 @@ class Trainer():
         self.env = env
         self.agent = agent
         self.plot = ScatterPlot("", "", "") 
+        self.render = True
+        self.should_plot = True
         
         self.key_actions = {
             "quit":     self.quit,
             "pause":    self.pause,
-            "down":     self.env.down
+            "down":     self.env.down,
+            "render":   self.toggle_render,
+            "plot":   self.toggle_plot
         }
 
         self.renderer = PyGameRenderer(config['cell_size'])
@@ -23,6 +27,12 @@ class Trainer():
         self.controller = Controller(self.key_actions)
         self.controller.addEvent(config['delay'])
 
+    def toggle_render(self):
+        self.render = not self.render
+
+    def toggle_plot(self):
+        self.should_plot = not self.should_plot
+
     def quit(self):
         self.exit_program = True
 
@@ -30,8 +40,11 @@ class Trainer():
         self.env.paused = not self.env.paused
 
     def run_episodes(self, max_episode, max_steps):
-        rewards = [self.run_episode(i, max_steps) for i in range(max_episode)]
-        return rewards
+        try:
+            rewards = [self.run_episode(i, max_steps) for i in range(max_episode)]
+            return rewards
+        finally:
+            return []
 
     def run_episode(self, episode, max_steps):
         current_state = self.env.reset()
@@ -42,7 +55,9 @@ class Trainer():
         step = 0
         self.exit_program = False
         while not self.exit_program:
-            self.renderer.render(self.env) 
+            if self.render:
+                self.renderer.render(self.env) 
+                self.renderer.wait(1)
             next_states = self.env.get_possible_states()
             best_action = agent.act(next_states)
             done, score, reward = env.step(*best_action)
@@ -56,12 +71,11 @@ class Trainer():
             current_state = next_states[best_action]
 
             step += 1
-            self.renderer.wait(1)
 
         agent.replay()
 
-        self.plot.add_point(episode, score, True)
-        print(f'Run episode: {episode}\tscore:{score}')
+        self.plot.add_point(episode, score, self.should_plot)
+        # print(f'Run episode: {episode}\tscore:{score}')
         
         return score
 
@@ -69,7 +83,9 @@ if __name__ == '__main__':
     env = Tetris(config['cols'], config['rows'])
     # agent = DumbAgent(4)
     agent = DQLAgent(4)
+    # agent = ChaoticAgent(4)
 
     trainer = Trainer(env, agent)
     trainer.run_episodes(4000, 25000)
+    trainer.plot.update()
     trainer.plot.freeze
