@@ -2,7 +2,7 @@ from config import *
 from controls import Controller
 from game import Tetris
 from renderer import PyGameRenderer
-from agent import DQLAgent, DumbAgent
+from agent import DQLAgent, DumbAgent, ChaoticAgent
 from plot import ScatterPlot
 
 class Trainer():
@@ -59,9 +59,6 @@ class Trainer():
             self.renderer.wait(1)
 
         agent.replay()
-
-        if agent.epsilon > agent.epsilon_min:
-            agent.epsilon -= agent.epsilon_decay
 
         self.plot.add_point(episode, score, True)
         print(f'Run episode: {episode}\tscore:{score}')

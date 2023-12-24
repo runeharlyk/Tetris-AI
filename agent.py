@@ -6,6 +6,19 @@ from collections import deque
 import numpy as np
 import random
 
+class AgentBase():
+    def __init__(self, state_size):
+        self.state_size = state_size
+
+    def act(self, states):
+        pass
+
+    def add_to_memory(self, current_state, next_state, reward, done):
+        pass
+
+    def replay(self):
+        pass
+
 class Net(nn.Module):
     def __init__(self, state_size):
         super(Net, self).__init__()
@@ -32,24 +45,24 @@ class Cost:
         cleared_lines_reward = cleared_lines ** 2 * 10 + 1
         return death_penalty + cleared_lines_reward + state_penalties
 
-class DumbAgent:
+class ChaoticAgent(AgentBase):
     def __init__(self, state_size):
+        super().__init__(state_size)
+
+    def act(self, states):
+        return random.choice(list(states.keys()))
+
+class DumbAgent(AgentBase):
+    def __init__(self, state_size):
+        super().__init__(state_size)
         self.weights = np.array([-1, -0.5, -0.1])
 
     def act(self, states):
         return max(states.items(), key=lambda x: (x[1][0], sum(x[1][1:] * self.weights)))[0]
 
-
-    def add_to_memory(self, current_state, next_state, reward, done):
-        pass
-
-    def replay(self):
-        pass
-
-class DQLAgent:
-    def __init__(self, state_size, path=None, lr=0.001):
-        self.costCalc = Cost()
-        self.state_size = state_size
+class DQLAgent(AgentBase):
+    def __init__(self, state_size:int, path:str=None, lr:float=0.001):
+        super().__init__(state_size)
         self.memory = deque(maxlen=30000)
         self.discount = 0.95
         self.epsilon = 1.0
@@ -60,11 +73,19 @@ class DQLAgent:
         self.batch_size = 512
         self.replay_start = self.batch_size
 
-        self.model = Net(state_size)
-        if path and os.path.isfile(path):
-            print("Using pre-trained model")
-            self.model.load_state_dict(torch.load(path))
+        self.model = self.initialize_model(state_size, path)
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr)
+        self.random_generator = np.random.RandomState()
+
+    def initialize_model(self, state_size: int, path: str = None):
+        model = Net(state_size)
+        if path and os.path.isfile(path):
+            try:
+                print("Using pre-trained model")
+                model.load_state_dict(torch.load(path))
+            except Exception as e:
+                print(f"Error loading model: {e}")
+        return model
 
     def add_to_memory(self, current_state, next_state, reward, done):
         self.memory.append([current_state, next_state, reward, done])
@@ -73,7 +94,7 @@ class DQLAgent:
         return next((action for action, state in states.items() if (best_state == state).all()), None)
     
     def act(self, states):
-        if random.random() <= self.epsilon:
+        if np.random.random() <= self.epsilon:
             return random.choice(list(states.keys()))
         
         state_tensors = torch.FloatTensor(np.array(list(states.values())))
@@ -112,3 +133,6 @@ class DQLAgent:
         loss = nn.MSELoss()(outputs.squeeze(), y_tensor)
         loss.backward()
         self.optimizer.step()
+
+        if self.epsilon > self.epsilon_min:
+            self.epsilon -= self.epsilon_decay
