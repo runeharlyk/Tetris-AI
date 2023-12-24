@@ -33,7 +33,16 @@ class PyGameRenderer():
                 for i, shape in enumerate(env.next_shapes):
                     self.draw_matrix(shape, (env.board.shape[1]+6, i*3 + 1))
                 self.draw_grid()
+                self.draw_stats(env)
         pygame.display.update()
+
+    def draw_stats(self, env):
+        stats = f'Lines:{env.lines} Pieces:{env.pieces}'
+        for i, line in enumerate(stats.split()):
+            msg_image = self.font_img(line)
+            text_offset_x = (env.board.shape[1]+6) * self.cell_size
+            text_offset_y = (i + len(env.next_shapes)*3 + 1) * self.cell_size
+            self.screen.blit(msg_image, (text_offset_x, text_offset_y))
 
     def draw_rect(self, color, left, top, width, height):
         cs = self.cell_size

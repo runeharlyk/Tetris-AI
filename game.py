@@ -28,6 +28,7 @@ class Tetris:
         self.high_score = max(self.high_score, self.score)
         self.score = 0
         self.lines = 0
+        self.pieces = 0
         self.level = 1
         self.held_shapes = []
         self.next_shapes = []
@@ -99,9 +100,9 @@ class Tetris:
                 states[(x, rotation)] = state
 
         return states
+    
 
     # Private tetris
-
 
     def _rotate_clockwise(self, shape:np.ndarray, times:int=1):
         return np.rot90(shape, times * -1)
@@ -167,12 +168,14 @@ class Tetris:
         non_full_rows = np.where(~full_rows)[0]
         board[num_full_rows:] = board[non_full_rows]
         board[:num_full_rows] = 0
+        self.lines += int(num_full_rows)
         return int(num_full_rows)
 
     def _evaluate_position(self):
         if not self._check_collision(self.board, self.shape, (self.shape_x, self.shape_y)): return 1
 
         self._place_shape(self.board, self.shape, (self.shape_x, self.shape_y))
+        self.pieces += 1
         cleared_lines, holes, bumpiness, height = self.get_state(self.board)
         self._get_new_shapes()
         cleared_lines = self._clear_lines(self.board)
