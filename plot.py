@@ -7,7 +7,7 @@ class ScatterPlot:
     def __init__(self, xlabel, ylabel, title) -> None:
         plt.ion()
         self.fig, self.ax = plt.subplots()
-        self.x, self.y = [0],[0]
+        self.x, self.y = [0], [0]
         self.sc = self.ax.scatter(self.x, self.y)
         self.ax.set_xlabel(xlabel)
         self.ax.set_ylabel(ylabel)
@@ -35,6 +35,10 @@ class ScatterPlot:
 
     def freeze(self):
         plt.waitforbuttonpress()
+
+    def stats(self):
+        y = np.array(self.y)
+        return np.mean(y), np.std(y), np.max(y)
 
 if __name__ == '__main__':
     plot = ScatterPlot("Test", "X-axis", "Y-axis")
