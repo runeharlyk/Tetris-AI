@@ -3,11 +3,13 @@ from controls import Controller
 from game import Tetris
 from renderer import PyGameRenderer
 from agent import DQLAgent, DumbAgent
+from plot import ScatterPlot
 
 class Trainer():
     def __init__(self, env, agent) -> None:
         self.env = env
         self.agent = agent
+        self.plot = ScatterPlot("", "", "") 
         
         self.key_actions = {
             "quit":     self.quit,
@@ -32,7 +34,6 @@ class Trainer():
         return rewards
 
     def run_episode(self, episode, max_steps):
-        print(f'Running: {episode}')
         current_state = self.env.reset()
         score = 0
         total_reward = 0
@@ -61,6 +62,9 @@ class Trainer():
 
         if agent.epsilon > agent.epsilon_min:
             agent.epsilon -= agent.epsilon_decay
+
+        self.plot.add_point(episode, score, True)
+        print(f'Run episode: {episode}\tscore:{score}')
         
         return score
 
@@ -70,4 +74,5 @@ if __name__ == '__main__':
     agent = DQLAgent(4)
 
     trainer = Trainer(env, agent)
-    trainer.run_episodes(1500, 25000)
+    trainer.run_episodes(4000, 25000)
+    trainer.plot.freeze
