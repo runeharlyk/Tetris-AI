@@ -21,6 +21,18 @@ class Tetris:
         
         self.reset()
 
+    def __str__(self):
+        out = f"score:{self.score}"
+        out += f"\nlines:{self.score}"
+        out += f"\npieces:{self.score}"
+        out += f"\nshape:"
+        for i in range(len(self.shape)):
+            out += f"\n{self.shape[i]}"
+        out += f"\nboard:"
+        for row in self.board:
+            out += f"\n{row}"
+        return out
+
     def reset(self):
         self.done = False
         self.paused = False
