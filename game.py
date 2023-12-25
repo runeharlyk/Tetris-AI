@@ -33,7 +33,8 @@ class Tetris:
         self.held_shapes = []
         self.next_shapes = []
         self._get_new_shapes()
-        return np.array([0, 0, 0, 0])
+        self.state = np.array([0, 0, 0, 0])
+        return self.state
 
     # Heuristics
     def _count_bridges(self, board:np.ndarray):
@@ -41,9 +42,9 @@ class Tetris:
         empty_count = 0
 
         for col in range(board.shape[1]):
-            if np.any(bridge_mask[:, col]):
-                bridge_row = np.argmax(bridge_mask[:, col])
-                empty_count += np.sum(board[bridge_row+1:, col] == 0)
+            if np.any(bridge_mask[:-1, col]):
+                bridge_row = np.argmax(bridge_mask[:-1, col])
+                empty_count += np.sum(board[bridge_row+1:-1, col] == 0)
 
         return empty_count
     
@@ -69,10 +70,10 @@ class Tetris:
 
     def get_state(self, board:np.ndarray):
         cleared_lines = self._count_full_lines(board)
-        holes = self._count_bridges(board)
+        bridges = self._count_bridges(board)
         bumpiness, height = self._calculate_height_and_bumpiness(board)
 
-        return np.array([cleared_lines, holes, bumpiness, height])
+        return np.array([cleared_lines, bridges, bumpiness, height])
     
     def get_possible_states(self):
         states = {}
@@ -174,14 +175,19 @@ class Tetris:
     def _evaluate_position(self):
         if not self._check_collision(self.board, self.shape, (self.shape_x, self.shape_y)): return 1
 
-        self._place_shape(self.board, self.shape, (self.shape_x, self.shape_y))
         self.pieces += 1
-        cleared_lines, holes, bumpiness, height = self.get_state(self.board)
-        self._get_new_shapes()
+        self._place_shape(self.board, self.shape, (self.shape_x, self.shape_y))
         cleared_lines = self._clear_lines(self.board)
+        self._get_new_shapes()
+        new_state = self.get_state(self.board)
+        delta_state = new_state - self.state
+        self.state = new_state
+
+        _, bridges, bumpiness, height = delta_state
+        # print(cleared_lines, bridges, bumpiness, height)
         self._add_points(cleared_lines)
         
-        return 1 + cleared_lines**2 * self.cols - height - holes - bumpiness
+        return 1 + cleared_lines**2 * self.cols - bridges**1.2 - height/3 #- (bumpiness/2)**2
 
     # Actions
     def rotate(self, times:int=1):
