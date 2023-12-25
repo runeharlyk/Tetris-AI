@@ -38,7 +38,7 @@ class ScatterPlot:
 
     def stats(self):
         y = np.array(self.y)
-        return np.mean(y), np.std(y), np.max(y)
+        return np.round(np.mean(y), 2), np.round(np.std(y), 2), np.max(y)
 
 if __name__ == '__main__':
     plot = ScatterPlot("Test", "X-axis", "Y-axis")
