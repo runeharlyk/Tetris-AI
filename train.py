@@ -53,6 +53,8 @@ class Trainer():
         try:
             rewards = [self.run_episode(i, max_steps) for i in range(max_episode)]
             return rewards
+        except Exception as error:
+            print(error)
         finally:
             return []
 
