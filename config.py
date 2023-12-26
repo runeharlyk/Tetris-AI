@@ -2,8 +2,8 @@ import pygame
 
 config = {
     'cell_size':   20,
-    'cols':        8,
-    'rows':        16,
+    'cols':        10,
+    'rows':        20,
     'down_delay':  750,
     'delay_id':    1,
     'print_id':    2,
