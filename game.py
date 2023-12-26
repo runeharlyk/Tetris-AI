@@ -10,7 +10,7 @@ tetris_shapes = [
     np.array([[7, 7], [7, 7]])
 ]
 
-line_points = [0, 40, 200, 300, 1200]
+line_points = [0, 4, 20, 30, 120]
 
 class Tetris:
     def __init__(self, columns, rows):
@@ -159,7 +159,9 @@ class Tetris:
     
     def _add_points(self, lines_cleared:int):
         self.lines += lines_cleared
-        self.score += line_points[lines_cleared] * self.level
+        score = line_points[lines_cleared] * self.level
+        self.score += score
+        return score
 
     def _get_new_random_shape(self):
         shape_index = np.random.randint(len(tetris_shapes))
@@ -197,9 +199,9 @@ class Tetris:
 
         _, bridges, bumpiness, height = delta_state
         # print(cleared_lines, bridges, bumpiness, height)
-        self._add_points(cleared_lines)
+        reward = self._add_points(cleared_lines)
         
-        return 1 + cleared_lines**2 * self.cols - bridges**1.2 - height/3 #- (bumpiness/2)**2
+        return 1 + reward * self.cols - bridges**2# + height/3 #- (bumpiness/2)**2
 
     # Actions
     def rotate(self, times:int=1):
@@ -221,7 +223,8 @@ class Tetris:
 
     def down(self):
         self.shape_y += 1
-        return self.done, self.score, self._evaluate_position()
+        reward = self._evaluate_position()
+        return self.done, self.score, reward
 
     def soft_drop(self):
         self.shape_y = self._soft_drop(self.board, self.shape, (self.shape_x, self.shape_y))
