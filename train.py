@@ -47,7 +47,7 @@ class Trainer():
         games_per_sec = self.played - self.last_played
         self.last_played = self.played
         mean_score, std_score, max_score = self.plot.stats()
-        print(f'Games per second:{games_per_sec}\tMean:{mean_score}\tstd:{std_score}\tmax:{max_score}')
+        print(f'Episodes:{self.played}\tGames per second:{games_per_sec}\tMean:{mean_score}\tstd:{std_score}\tmax:{max_score}\tmemory:{len(self.agent.memory)}')
 
     def run_episodes(self, max_episode, max_steps):
         try:
