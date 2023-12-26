@@ -9,6 +9,7 @@ import random
 class AgentBase():
     def __init__(self, state_size):
         self.state_size = state_size
+        self.memory = []
 
     def act(self, states):
         pass
@@ -55,10 +56,15 @@ class ChaoticAgent(AgentBase):
 class DumbAgent(AgentBase):
     def __init__(self, state_size):
         super().__init__(state_size)
-        self.weights = np.array([-1, -0.5, -0.1])
+        # self.weights = np.array([0, 0, 0, -1]) # 9
+        # self.weights = np.array([0, 0, -1, 0]) # 20
+        # self.weights = np.array([0, -1, 0, 0]) # 15
+        #self.weights = np.array([1, 0, 0, 0])   # 0.08
+
+        self.weights = np.array([2, -0.5, -0.5, -0.5])
 
     def act(self, states):
-        return max(states.items(), key=lambda x: (x[1][0], sum(x[1][1:] * self.weights)))[0]
+        return max(states.items(), key=lambda x: (sum(x[1][i] * self.weights[i] for i in range(0, 3))))[0]
 
 class DQLAgent(AgentBase):
     def __init__(self, state_size:int, path:str=None, lr:float=0.001):
