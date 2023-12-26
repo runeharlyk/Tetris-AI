@@ -92,12 +92,14 @@ class Trainer():
         return score
 
 if __name__ == '__main__':
-    env = Tetris(config['cols'], config['rows'])
     # agent = DumbAgent(4)
-    agent = DQLAgent(4)
+    width, height = config['cols'], config['rows']
+    model_path = f'model_{width}_{height}.pt'
+
+    env = Tetris(width, height)
     # agent = ChaoticAgent(4)
 
     trainer = Trainer(env, agent)
-    trainer.run_episodes(4000, 25000)
+    trainer.run_episodes(10000, 25000)
     trainer.plot.update()
     trainer.plot.freeze
