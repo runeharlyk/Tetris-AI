@@ -1,7 +1,7 @@
-from config import *
-from controls import Controller
-from game import Tetris
-from renderer import PyGameRenderer
+from environment.config import *
+from environment.controls import Controller
+from environment.tetris import Tetris
+from environment.renderer import PyGameRenderer
 
 class TetrisApp():
     def __init__(self, cols, rows) -> None:
@@ -21,12 +21,11 @@ class TetrisApp():
             "print":     self.print
         }
 
-        self.renderer = PyGameRenderer(config['cell_size'])
+        self.renderer = PyGameRenderer(Config.cell_size)
         self.renderer.render(self.env) 
     
         self.controller = Controller(self.key_actions)
-        self.controller.addEvent(config['delay_id'], config['down_delay'])
-        self.controller.addEvent(config['print_id'], config['print_delay'])
+        self.controller.addEvent(Config.delay_id, Config.down_delay)
 
     def quit(self):
         self.exit_program = True
@@ -46,5 +45,5 @@ class TetrisApp():
 
 
 if __name__ == '__main__':
-    app = TetrisApp(config['cols'], config['rows'])
+    app = TetrisApp(Config.cols, Config.rows)
     app.start()

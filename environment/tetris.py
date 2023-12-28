@@ -1,18 +1,19 @@
+import random
 import numpy as np
-
-tetris_shapes = [
-    np.array([[1, 1, 1], [0, 1, 0]]),
-    np.array([[0, 2, 2], [2, 2, 0]]),
-    np.array([[3, 3, 0], [0, 3, 3]]),
-    np.array([[4, 0, 0], [4, 4, 4]]),
-    np.array([[0, 0, 5], [5, 5, 5]]),
-    np.array([[6, 6, 6, 6]]),
-    np.array([[7, 7], [7, 7]])
-]
 
 line_points = [0, 4, 20, 30, 120]
 
 class Tetris:
+    SHAPES = [
+        np.array([[1, 1, 1], [0, 1, 0]]),
+        np.array([[0, 2, 2], [2, 2, 0]]),
+        np.array([[3, 3, 0], [0, 3, 3]]),
+        np.array([[4, 0, 0], [4, 4, 4]]),
+        np.array([[0, 0, 5], [5, 5, 5]]),
+        np.array([[6, 6, 6, 6]]),
+        np.array([[7, 7], [7, 7]])
+    ]
+
     def __init__(self, columns, rows):
         self.cols = columns
         self.rows = rows
@@ -84,7 +85,6 @@ class Tetris:
         cleared_lines = self._count_full_lines(board)
         bridges = self._count_bridges(board)
         bumpiness, height = self._calculate_height_and_bumpiness(board)
-
         return np.array([cleared_lines, bridges, bumpiness, height])
     
     def get_possible_states(self):
@@ -164,8 +164,7 @@ class Tetris:
         return score
 
     def _get_new_random_shape(self):
-        shape_index = np.random.randint(len(tetris_shapes))
-        return tetris_shapes[shape_index].copy()
+        return random.choice(self.SHAPES)
 
     def _get_new_shapes(self):
         self.next_shapes.extend([self._get_new_random_shape() for _ in range(4 - len(self.next_shapes))])
@@ -201,7 +200,7 @@ class Tetris:
         # print(cleared_lines, bridges, bumpiness, height)
         reward = self._add_points(cleared_lines)
         
-        return 1 + reward * self.cols - bridges**2# + height/3 #- (bumpiness/2)**2
+        return 10 + reward**2 * self.cols - bridges**2 - (height/4)**2# + height/3 #- (bumpiness/2)**2
 
     # Actions
     def rotate(self, times:int=1):

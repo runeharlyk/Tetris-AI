@@ -1,5 +1,5 @@
 import pygame
-from config import key_actions
+from environment.actions import key_actions
 
 class Controller:
     def __init__(self, actions) -> None:

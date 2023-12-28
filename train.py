@@ -1,9 +1,9 @@
-from config import *
-from controls import Controller
-from game import Tetris
-from renderer import PyGameRenderer
+from environment.config import Config
+from environment.controls import Controller
+from environment.tetris import Tetris
+from environment.renderer import PyGameRenderer
 from agent import DQLAgent, DumbAgent, ChaoticAgent
-from plot import ScatterPlot
+from utils.plot import ScatterPlot
 
 class Trainer():
     def __init__(self, env, agent) -> None:
@@ -24,12 +24,12 @@ class Trainer():
 
         }
 
-        self.renderer = PyGameRenderer(config['cell_size'])
+        self.renderer = PyGameRenderer(Config.cell_size)
         self.renderer.render(self.env)
     
         self.controller = Controller(self.key_actions)
-        self.controller.addEvent(config['delay_id'], config['down_delay'])
-        self.controller.addEvent(config['print_id'], config['print_delay'])
+        self.controller.addEvent(Config.delay_id, Config.down_delay)
+        self.controller.addEvent(Config.print_id, Config.print_delay)
 
     def toggle_render(self):
         self.render = not self.render
@@ -93,7 +93,7 @@ class Trainer():
 
 if __name__ == '__main__':
     # agent = DumbAgent(4)
-    width, height = config['cols'], config['rows']
+    width, height = Config.cols, Config.rows
     model_path = f'model_{width}_{height}.pt'
 
     env = Tetris(width, height)

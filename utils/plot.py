@@ -12,8 +12,6 @@ class ScatterPlot:
         self.ax.set_xlabel(xlabel)
         self.ax.set_ylabel(ylabel)
         self.ax.set_title(title)
-        # self.ax.set_xlim([0, 10])
-        # self.ax.set_ylim([0, 10])
         plt.draw()
 
     def add_point(self, x, y, render, pause=0.0001):

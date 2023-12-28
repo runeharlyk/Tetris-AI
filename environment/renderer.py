@@ -1,5 +1,6 @@
 import pygame
-from config import *
+from environment.config import Config
+from environment.colors import Color
 
 class PyGameRenderer():
     def __init__(self, cell_size):
@@ -83,6 +84,6 @@ class PyGameRenderer():
         for y, row in enumerate(matrix):
             for x, val in enumerate(row):
                 if not val: continue
-                color = colors[int(val)]
+                color = Color.ALL[int(val)]
                 rect = pygame.Rect((off_x+x) * self.cell_size, (off_y+y) * self.cell_size, self.cell_size, self.cell_size)
                 pygame.draw.rect(self.screen, color, rect,0)
