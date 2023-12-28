@@ -2,10 +2,10 @@ from environment.config import Config
 from environment.controls import Controller
 from environment.tetris import Tetris
 from environment.renderer import PyGameRenderer
-from agent import DQLAgent, DumbAgent, ChaoticAgent
+from agents.DQLAgent import DQLAgent
 from utils.plot import ScatterPlot
 
-class Tester():
+class Trainer():
     def __init__(self, env, agent) -> None:
         self.env = env
         self.agent = agent
@@ -47,18 +47,25 @@ class Tester():
         games_per_sec = self.played - self.last_played
         self.last_played = self.played
         mean_score, std_score, max_score = self.plot.stats()
-        print(f'Games per second:{games_per_sec}\tMean:{mean_score}\tstd:{std_score}\tmax:{max_score}')
+        print(f'Episodes:{self.played}\tGames per second:{games_per_sec}\tMean:{mean_score}\tstd:{std_score}\tmax:{max_score}\tmemory:{len(self.agent.memory)}')
 
-    def run(self, games):
-        for i in range(games):
-            self.play(i)
+    def run_episodes(self, max_episode, max_steps):
+        try:
+            rewards = [self.run_episode(i, max_steps) for i in range(max_episode)]
+            return rewards
+        except Exception as error:
+            print(error)
+        finally:
+            return []
 
-    def play(self, game):
-        self.played = game
-        self.env.reset()
+    def run_episode(self, episode, max_steps):
+        self.played = episode
+        current_state = self.env.reset()
         score = 0
         total_reward = 0
         done = False
+        max_steps = 25000
+        step = 0
         self.exit_program = False
         while not self.exit_program:
             if self.render:
@@ -69,24 +76,30 @@ class Tester():
             done, score, reward = env.step(*best_action)
             total_reward += reward
 
-            if done: break
+            if done or step > max_steps: break
             self.controller.handleEvents()
 
-        self.plot.add_point(game, score, self.should_plot)
+            agent.add_to_memory(current_state, next_states[best_action], reward, done)
+
+            current_state = next_states[best_action]
+
+            step += 1
+
+        agent.replay()
+
+        self.plot.add_point(episode, score, self.should_plot)
         
         return score
 
 if __name__ == '__main__':
     width, height = Config.cols, Config.rows
-    model_path = f'model_{width}_{height}.pt'
+    model_path = f'model_dql_{width}_{height}.pt'
 
     env = Tetris(width, height)
-    # agent = DumbAgent(4)
-    agent = DQLAgent(4, model_path, 0)
-    # agent = ChaoticAgent(4)
+    agent = DQLAgent(4)
 
-    tester = Tester(env, agent)
-    tester.run(100)
-    tester.plot.update()
-    tester.plot.freeze
+    trainer = Trainer(env, agent)
+    trainer.run_episodes(10000, 25000)
+    trainer.plot.update()
+    trainer.plot.freeze
     agent.save(model_path)

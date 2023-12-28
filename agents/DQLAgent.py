@@ -6,20 +6,6 @@ from collections import deque
 import numpy as np
 import random
 
-class AgentBase():
-    def __init__(self, state_size):
-        self.state_size = state_size
-        self.memory = []
-
-    def act(self, states):
-        pass
-
-    def add_to_memory(self, current_state, next_state, reward, done):
-        pass
-
-    def replay(self):
-        pass
-
 class Net(nn.Module):
     def __init__(self, state_size):
         super(Net, self).__init__()
@@ -36,48 +22,18 @@ class Net(nn.Module):
     def forward(self, x):
         return self.layers(x)
 
-class Cost:
-    def __init__(self):
-        pass
-
-    def calculate(self, state, cleared_lines, done):
-        state_penalties =  np.sum(np.array([0, -0.1, -0.1, -0.01]) * state) # cleared_lines, holes, bumpiness, height
-        death_penalty = done * -20
-        cleared_lines_reward = cleared_lines ** 2 * 10 + 1
-        return death_penalty + cleared_lines_reward + state_penalties
-
-class ChaoticAgent(AgentBase):
-    def __init__(self, state_size):
-        super().__init__(state_size)
-
-    def act(self, states):
-        return random.choice(list(states.keys()))
-
-class DumbAgent(AgentBase):
-    def __init__(self, state_size):
-        super().__init__(state_size)
-        # self.weights = np.array([0, 0, 0, -1]) # 9
-        # self.weights = np.array([0, 0, -1, 0]) # 20
-        # self.weights = np.array([0, -1, 0, 0]) # 15
-        #self.weights = np.array([1, 0, 0, 0])   # 0.08
-
-        self.weights = np.array([2, -0.5, -0.5, -0.5])
-
-    def act(self, states):
-        return max(states.items(), key=lambda x: (sum(x[1][i] * self.weights[i] for i in range(0, 3))))[0]
-
-class DQLAgent(AgentBase):
-    def __init__(self, state_size:int, path:str=None, lr:float=0.001):
-        super().__init__(state_size)
+class DQLAgent():
+    def __init__(self, state_size:int, path:str=None, epsilon=1.0, lr:float=0.001):
+        self.state_size = state_size
         self.memory = deque(maxlen=30000)
         self.discount = 0.95
-        self.epsilon = 1.0
-        self.epsilon_min = 0.05 
-        self.epsilon_end_episode = 2000
+        self.epsilon = epsilon
+        self.epsilon_min = 0.25 
+        self.epsilon_end_episode = 1500
         self.epsilon_decay = (self.epsilon - self.epsilon_min) / self.epsilon_end_episode
 
         self.batch_size = 512
-        self.replay_start = self.batch_size
+        self.replay_start = 2000
 
         self.model = self.initialize_model(state_size, path)
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr)
