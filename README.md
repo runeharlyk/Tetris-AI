@@ -25,6 +25,19 @@
 * Punish not placing in center
 * Punish bridges
 
+### Heuristics
+
+* Clear lines
+* Total height
+* Number of bridges
+* Bumpiness
+
+### Genetic algo
+
+* Fitness
+* Elitism
+* Crossover
+* Mutation
 ### Optimization
 
 Numpy
