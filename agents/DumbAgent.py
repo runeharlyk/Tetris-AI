@@ -3,7 +3,6 @@ import numpy as np
 
 class DumbAgent():
     def __init__(self, state_size):
-        super().__init__(state_size)
         self.weights = np.array([0.064, -0.31, -0.29, -0.89])
 
     def act(self, states):
