@@ -20,7 +20,7 @@ class PyGameRenderer():
         self.screen.fill((0,0,0))
 
         if env.done:
-            self.center_msg("Game Over! \nPress r to continue")
+            self.center_msg(f"Game Over!\nPress r to continue\nFinal score:{env.score}")
         else:
             if env.paused:
                 self.center_msg("Paused")
