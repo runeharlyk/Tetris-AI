@@ -2,6 +2,7 @@ import random
 import numpy as np
 
 line_points = [0, 40, 100, 300, 1200]
+delay_per_level = [48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4, 4, 3, 3, 3, 2] # <= 19 = 1 
 
 class Tetris:
     SHAPES = [
