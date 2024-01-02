@@ -1,7 +1,7 @@
 import random
 import numpy as np
 
-line_points = [0, 4, 20, 30, 120]
+line_points = [0, 40, 100, 300, 1200]
 
 class Tetris:
     SHAPES = [
@@ -152,6 +152,7 @@ class Tetris:
         x, y = offset
         while not self._check_collision(board, shape, (x, y + 1)):
             y += 1
+        self.score += y - offset[1]
         return y
     
     def _new_board(self):
@@ -191,6 +192,7 @@ class Tetris:
         self.pieces += 1
         self._place_shape(self.board, self.shape, (self.shape_x, self.shape_y))
         cleared_lines = self._clear_lines(self.board)
+        self.level = self.lines // 10 + 1
         self._get_new_shapes()
         new_state = self.get_state(self.board)
         delta_state = new_state - self.state
@@ -223,6 +225,7 @@ class Tetris:
     def down(self):
         self.shape_y += 1
         reward = self._evaluate_position()
+        self.score += 1
         return self.done, self.score, reward
 
     def soft_drop(self):
