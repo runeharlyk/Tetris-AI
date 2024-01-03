@@ -69,21 +69,21 @@ class Tetris:
 
         return max_height, bumpiness
     
-    def _count_full_lines(self, board:np.ndarray):
+    def _count_full_rows(self, board:np.ndarray):
         full_rows = np.all(board != 0, axis=1)
         return int(np.sum(full_rows))
 
     def _get_current_state(self, board:np.ndarray, shape:np.ndarray, offset:tuple):
         new_board = board.copy()
         self._place_shape(new_board, shape, offset)
-        cleared_lines = self._count_full_lines(new_board)
+        cleared_lines = self._count_full_rows(new_board)
         holes = self._count_bridges(new_board)
         bumpiness, height = self._calculate_height_and_bumpiness(new_board)
 
         return np.array([cleared_lines, holes, bumpiness, height])
 
     def get_state(self, board:np.ndarray):
-        cleared_lines = self._count_full_lines(board)
+        cleared_lines = self._count_full_rows(board)
         bridges = self._count_bridges(board)
         bumpiness, height = self._calculate_height_and_bumpiness(board)
         return np.array([cleared_lines, bridges, bumpiness, height])

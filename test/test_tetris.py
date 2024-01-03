@@ -43,7 +43,7 @@ class TestCountFullLinesFunction(unittest.TestCase):
         env = Tetris(8, 16)
         env._place_shape(env.board, Tetris.SHAPES[5], (0, 1))
         env._place_shape(env.board, Tetris.SHAPES[5], (4, 1))
-        self.assertEqual(env._count_full_lines(env.board), 1)
+        self.assertEqual(env._count_full_rows(env.board), 1)
 
 if __name__ == '__main__':
     unittest.main()
