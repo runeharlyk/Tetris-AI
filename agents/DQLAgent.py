@@ -28,7 +28,7 @@ class DQLAgent():
         self.memory = deque(maxlen=30000)
         self.discount = 0.95
         self.epsilon = epsilon
-        self.epsilon_min = 0.25 
+        self.epsilon_min = 0.01
         self.epsilon_end_episode = 1500
         self.epsilon_decay = (self.epsilon - self.epsilon_min) / self.epsilon_end_episode
 

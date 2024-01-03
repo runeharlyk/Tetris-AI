@@ -9,7 +9,7 @@ class Trainer():
     def __init__(self, env, agent) -> None:
         self.env = env
         self.agent = agent
-        self.plot = ScatterPlot("", "", "") 
+        self.plot = ScatterPlot("Games", "Score", "DQL training score per game") 
         self.render = True
         self.should_plot = True
         self.played = self.last_played = 0
@@ -21,7 +21,6 @@ class Trainer():
             "render":   self.toggle_render,
             "plot":     self.toggle_plot,
             "print":    self.print
-
         }
 
         self.renderer = PyGameRenderer(Config.cell_size)
@@ -62,7 +61,6 @@ class Trainer():
         self.played = episode
         current_state = self.env.reset()
         score = 0
-        total_reward = 0
         done = False
         max_steps = 25000
         step = 0
@@ -74,12 +72,12 @@ class Trainer():
             next_states = self.env.get_possible_states()
             best_action = agent.act(next_states)
             done, score, reward = env.step(*best_action)
-            total_reward += reward
 
-            if done or step > max_steps: break
             self.controller.handleEvents()
 
             agent.add_to_memory(current_state, next_states[best_action], reward, done)
+
+            if done or step > max_steps: break
 
             current_state = next_states[best_action]
 
@@ -101,5 +99,5 @@ if __name__ == '__main__':
     trainer = Trainer(env, agent)
     trainer.run_episodes(10000, 25000)
     trainer.plot.update()
-    trainer.plot.freeze
     agent.save(model_path)
+    trainer.plot.freeze()

@@ -41,6 +41,7 @@ class Tetris:
         self.board = self._new_board()
         self.high_score = max(self.high_score, self.score)
         self.score = 0
+        self.prev_score = 0
         self.lines = 0
         self.pieces = 0
         self.level = 1
@@ -150,6 +151,7 @@ class Tetris:
         return new_x
 
     def _soft_drop(self, board:np.ndarray, shape:np.ndarray, offset:tuple):
+        self.prev_score = self.score
         x, y = offset
         while not self._check_collision(board, shape, (x, y + 1)):
             y += 1
@@ -188,22 +190,14 @@ class Tetris:
         return int(num_full_rows)
 
     def _evaluate_position(self):
-        if not self._check_collision(self.board, self.shape, (self.shape_x, self.shape_y)): return 1
+        if not self._check_collision(self.board, self.shape, (self.shape_x, self.shape_y)): return
 
         self.pieces += 1
         self._place_shape(self.board, self.shape, (self.shape_x, self.shape_y))
         cleared_lines = self._clear_lines(self.board)
         self.level = self.lines // 10 + 1
         self._get_new_shapes()
-        new_state = self.get_state(self.board)
-        delta_state = new_state - self.state
-        self.state = new_state
-
-        _, bridges, bumpiness, height = delta_state
-        # print(cleared_lines, bridges, bumpiness, height)
-        reward = self._add_points(cleared_lines)
-        
-        return 10 + reward**2 * self.cols - bridges**2 - (height/4)**2# + height/3 #- (bumpiness/2)**2
+        self._add_points(cleared_lines)
 
     # Actions
     def rotate(self, times:int=1):
@@ -225,9 +219,8 @@ class Tetris:
 
     def down(self):
         self.shape_y += 1
-        reward = self._evaluate_position()
-        self.score += 1
-        return self.done, self.score, reward
+        self._evaluate_position()
+        return self.done, self.score, self.score - self.prev_score
 
     def soft_drop(self):
         self.shape_y = self._soft_drop(self.board, self.shape, (self.shape_x, self.shape_y))
