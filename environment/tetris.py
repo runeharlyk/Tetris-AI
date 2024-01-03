@@ -63,11 +63,11 @@ class Tetris:
         return empty_count
     
     def _calculate_height_and_bumpiness(self, board:np.ndarray):
-        heights = np.max(np.where(board != 0, len(board) - np.arange(len(board))[:, None], 0), axis=0)
-        total_height = np.max(heights)
+        heights = np.max(np.where(board != 0, len(board) - 1 - np.arange(len(board))[:, None], 0), axis=0)
+        max_height = np.max(heights)
         bumpiness = np.sum(np.abs(np.diff(heights)))
 
-        return total_height, bumpiness
+        return max_height, bumpiness
     
     def _count_full_lines(self, board:np.ndarray):
         full_rows = np.all(board != 0, axis=1)
