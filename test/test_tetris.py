@@ -50,6 +50,18 @@ class TestCountFullLinesFunction(unittest.TestCase):
         env._place_shape(env.board, Tetris.SHAPES[5], (0, 1))
         env._place_shape(env.board, Tetris.SHAPES[5], (4, 1))
         self.assertEqual(heuristics._count_full_rows(env.board), 1)
+        
+class TestPillarCheckFunction(unittest.TestCase):
+    def test_check_one_pillar(self):
+        env = Tetris(8, 16)
+        heuristics = Heuristics()
+        for i in range(env.board.shape[1] - 1):
+            env.shape = Tetris.SHAPES[5]
+            env.rotate()
+            env.shape_x = i
+            env.hard_drop()
+        self.assertEqual(heuristics._check_for_pillar(env.board), 1)
+        
 
 if __name__ == '__main__':
     unittest.main()

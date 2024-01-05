@@ -94,7 +94,7 @@ if __name__ == '__main__':
     model_path = f'model_dql_{width}_{height}.pt'
 
     env = Tetris(width, height)
-    agent = DQLAgent(4)
+    agent = DQLAgent(5)
 
     trainer = Trainer(env, agent)
     trainer.run_episodes(10000, 25000)
