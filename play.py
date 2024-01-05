@@ -18,7 +18,6 @@ class TetrisApp():
             "reset":    self.env.reset,
             "pause":    self.pause,
             "down":     self.env.down,
-            "print":     self.print
         }
 
         self.renderer = PyGameRenderer(Config.cell_size)
@@ -32,9 +31,6 @@ class TetrisApp():
 
     def pause(self):
         self.env.paused = not self.env.paused
-
-    def print(self):
-        print(f'Lines:{self.env.score}\tPieces:{self.env.lines}')
 
     def start(self):
         self.exit_program = False
