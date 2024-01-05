@@ -29,7 +29,7 @@ class PyGameRenderer():
                 self.draw_rect((255, 0, 0), 5, 0, env.cols, env.rows)
                 for i, shape in enumerate(env.held_shapes):
                     self.draw_matrix(shape, (1, i*3 + 1))
-                self.draw_matrix(env.board, (5, 1))
+                self.draw_matrix(env.board, (5,0))
                 self.draw_matrix(env.shape, (env.shape_x + 5, env.shape_y + 1))
                 for i, shape in enumerate(env.next_shapes):
                     self.draw_matrix(shape, (env.board.shape[1]+6, i*3 + 1))

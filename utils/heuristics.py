@@ -11,13 +11,13 @@ class Heuristics:
 
         for col in range(board.shape[1]):
             if np.any(bridge_mask[:-1, col]):
-                bridge_row = np.argmax(bridge_mask[:-1, col])
-                empty_count += np.sum(board[bridge_row+1:-1, col] == 0)
+                bridge_row = np.argmax(bridge_mask[:, col])
+                empty_count += np.sum(board[bridge_row:, col] == 0)
 
         return empty_count
     
     def _calculate_height_and_bumpiness(self, board:np.ndarray):
-        heights = np.max(np.where(board != 0, len(board) - 1 - np.arange(len(board))[:, None], 0), axis=0)
+        heights = np.max(np.where(board != 0, len(board) - np.arange(len(board))[:, None], 0), axis=0)
         max_height = np.max(heights)
         bumpiness = np.sum(np.abs(np.diff(heights)))
 

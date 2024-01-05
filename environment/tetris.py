@@ -95,7 +95,7 @@ class Tetris:
         off_x, off_y = offset
         shape_height, shape_width = shape.shape
         rows, cols = board.shape
-        if off_x < 0 or off_x + shape_width > cols or off_y + shape_height > rows - 1:
+        if off_x < 0 or off_x + shape_width > cols or off_y + shape_height > rows:
             return True
         board_area = board[off_y:off_y + shape_height, off_x:off_x + shape_width]
 
