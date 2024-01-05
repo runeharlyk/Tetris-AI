@@ -26,16 +26,30 @@ class Heuristics:
     def _count_full_rows(self, board:np.ndarray):
         full_rows = np.all(board != 0, axis=1)
         return int(np.sum(full_rows))
+    
+    def _check_for_pillar(self, board:np.ndarray):
+        empty=[]
+        previous_row=[1]*board.shape[1]
+        previous_i = 0
+        for row in np.where(board != 0,1,0)[::-1]:
+            i = np.argmin(row)
+            if np.sum(row) == board.shape[1]-1:
+                if len(empty) == 0 and previous_row[i]:
+                    empty=[]
+                    empty.append(i)
+                    previous_i = i
+                elif previous_i == i:
+                    empty.append(i)
+                    previous_i = i
+            else:
+                empty = []
+            if len(empty) == 4 and len(set(empty)) == 1:
+                return True
+        return False
 
     def get_heuristics(self, board:np.ndarray):
         cleared_lines = self._count_full_rows(board)
         holes = self._count_bridges(board)
         bumpiness, height = self._calculate_height_and_bumpiness(board)
-
-        return np.array([cleared_lines, holes, bumpiness, height])
-
-    def get_state(self, board:np.ndarray):
-        cleared_lines = self._count_full_rows(board)
-        bridges = self._count_bridges(board)
-        bumpiness, height = self._calculate_height_and_bumpiness(board)
-        return np.array([cleared_lines, bridges, bumpiness, height])
+        check_pillar = self._check_for_pillar(board)
+        return np.array([cleared_lines, holes, bumpiness, height,check_pillar])

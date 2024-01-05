@@ -50,7 +50,7 @@ class Tetris:
         self.held_shapes = []
         self.next_shapes = []
         self._get_new_shapes()
-        self.state = np.array([0, 0, 0, 0])
+        self.state = np.array([0, 0, 0, 0, 0])
         return self.state
 
     def _get_current_state(self, board:np.ndarray, shape:np.ndarray, offset:tuple):
