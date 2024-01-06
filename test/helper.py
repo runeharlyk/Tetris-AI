@@ -15,5 +15,5 @@ def parametrized(dec):
 @parametrized
 def theory(test, theories):
     def aux(*args):
-        return [test(*args, *theory) for theory in theories]
+        [test(*args, *theory) for theory in theories]
     return aux
