@@ -60,28 +60,30 @@ class Tetris:
     
     def get_possible_states(self):
         states = {}
-        shape = self.shape
         shape_x = self.shape_x
         board = self.board.copy()
         _, cols = board.shape
         rotations = []
         str_states = []
 
-        for rotation in range(4):
-            rotated = self._rotate(board, shape, (shape_x, 0), rotation)
-            if str(rotated) in rotations:
-                continue
-            rotations.append(str(rotated))
-            max_x = int(cols - rotated.shape[1] + 1)
-            for x in range(max_x):
-                y = 0
-                while not self._check_collision(board, rotated, (x, y + 1)):
-                    y += 1
-                state = self._get_current_state(board[:], rotated, (x, y))
-                if str(state) in str_states:
+        for holding in range(2):
+            shape = self.shape
+            for rotation in range(4):
+                rotated = self._rotate(board, shape, (shape_x, 0), rotation)
+                if str(rotated) in rotations:
                     continue
-                str_states.append(str(state))
-                states[(x, rotation)] = state
+                rotations.append(str(rotated))
+                max_x = int(cols - rotated.shape[1] + 1)
+                for x in range(max_x):
+                    y = 0
+                    while not self._check_collision(board, rotated, (x, y + 1)):
+                        y += 1
+                    state = self._get_current_state(board[:], rotated, (x, y))
+                    if str(state) in str_states:
+                        continue
+                    str_states.append(str(state))
+                    states[(x, rotation, holding)] = state
+            self.hold()
 
         return states
     
@@ -185,6 +187,7 @@ class Tetris:
             shape = self.held_shapes.pop()
             self.held_shapes.append(self.shape)
             self.shape = shape
+            self.move(0)
 
     def down(self):
         self.shape_y += 1
@@ -198,7 +201,9 @@ class Tetris:
         self.soft_drop()
         return self.down()
 
-    def step(self, delta_x:int, rotation:int):
+    def step(self, delta_x:int, rotation:int, holding):
+        if holding:
+            self.hold()
         self.rotate(rotation)
         self.move(delta_x - self.shape_x)
         return self.hard_drop()
