@@ -1,51 +1,106 @@
-# Tetris-AI
+# Tetris-AI using DQN
 
-## Structure
+<!-- Insert gif of AI playing -->
 
-### Engine
+<!-- ## TL-DR -->
 
-* Numpy
+<!-- Write intro to tetris and the working of DQN -->
 
-### Renderer
+## About the project
 
-### Agent
+This project utilizes deep reinforcement learning to master the game of Tetris. The game engine makes use of the NumPy library for efficient numerical computations and the AI agent is implemented using PyTorch. Our project aims to showcase how Deep Q-Networks (DQN) can be applied to classic games, demonstrating both the learning capability of neural networks and the strategic depth of Tetris.
 
-* Deep q-learning
-* Simple
-* Genetic algorithm
-* Monto-carlo-search
+<!-- Describe how to the AI works -->
 
-#### Cost & reward
+## Features
 
-* Punish holes
-* Punish based on height
-* Punish empty pillars
-* Punish bumpy_ness
-* Big reward tetris (Line clearing)
-* Punish not placing in center
-* Punish bridges
+**Deep Q-Network Implementation**: Utilizes a DQN for learning optimal play strategies.
 
-### Heuristics
+**Customizable Hyperparameters**: Allows tweaking learning rate, discount factor, etc.
 
-* Clear lines
-* Total height
-* Number of bridges
-* Bumpiness
+**Real-time Learning Plotting**: Watch the AI learn and improve over time.
 
-### Genetic algo
+## Heuristics
 
-* Fitness
-* Elitism
-* Crossover
-* Mutation
-### Optimization
+To efficiently train and run the neural network the game state is reduced to a few heuristics:
 
-Numpy
-O-Notation
+* Number of full rows
+* Max height of the columns
+* Number of bridges (a bridge is an empty cell beneath a full cell in the column above).
+* Bumpiness (sum of absolute difference between column height)
 
-## TODO
+## Getting started
 
-[x] Generate states, without duplicates
-[ ] python decorator for logging function calls
-[x] Number of sims per second printed every second
-[ ] Rolling average
+### Prerequisites
+
+The project uses Python 3.11.x which can be down from the [official website](https://www.python.org/downloads/release/python-3117/).
+
+### Installation
+
+1. Clone the repo
+
+    ```console
+    git clone https://github.com/runeharlyk/Tetris-AI.git
+    cd Tetris-AI
+    ```
+
+1. Setup [virtual environment](https://docs.python.org/3/library/venv.html) (Optional)
+
+    ```console
+    python -m venv TetrisEnv
+    ```
+
+1. Install the dependencies
+
+    ```console
+    pip install -r requirements.txt
+    ```
+
+## Usage
+
+To train a model, run their training script eg.
+
+```console
+python train_DQLAgent.py
+```
+
+To test, without modifying, the models run their test script eg.
+
+```console
+python test_DQNAgent.py
+```
+
+## Roadmap
+
+- [x] Generate states, without duplicates
+- [ ] python decorator for logging function calls
+- [x] Number of sims per second printed every second
+- [ ] Rolling average
+- [ ] Graph for model reward prediction
+- [ ] Model weight visualization
+
+See [issues](https://github.com/runeharlyk/Tetris-AI/issues) for more details
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Contributing
+
+Contributions to the project are welcome! If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+
+Don't forget to give the project a star! Thanks again!
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## Authors
+
+- Clara
+- Lucas
+- Rune
+
+<!-- ## Acknowledgments -->
