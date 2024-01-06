@@ -5,63 +5,54 @@ import os
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, parent_dir)
 
-from environment.tetris import Tetris
 from utils.heuristics import Heuristics
+from helper import load_board, theory
+heuristics = Heuristics()
 
 class TestBridgeCountFunction(unittest.TestCase):
-    def test_no_bridge_count(self):
-        env = Tetris(8, 16)
-        heuristics = Heuristics()
-        env.shape = Tetris.SHAPES[0]
-        env.rotate(2)
-        env.hard_drop()
-        self.assertEqual(heuristics._count_bridges(env.board), 0)
+    @theory(((1, 0), (2, 0), (3, 0)))
+    def test_many_bridge_count(self, board_id, bridges):
+        board = load_board(board_id)
 
-    def test_many_bridge_count(self):
-        env = Tetris(8, 16)
-        heuristics = Heuristics()
-        for _ in range(len(Tetris.SHAPES)):
-            env.shape = Tetris.SHAPES[0]
-            env.shape_x = 4
-            env.hard_drop()
-        self.assertEqual(heuristics._count_bridges(env.board), 14)
+        actual_bridges = heuristics._count_bridges(board)
+
+        self.assertEqual(actual_bridges, bridges)
 
 class TestHeightAndBumpinesssFunction(unittest.TestCase):
-    def test_height(self):
-        env = Tetris(8, 16)
-        heuristics = Heuristics()
-        env.shape = Tetris.SHAPES[5]
-        env.rotate(1)
-        env.hard_drop()
-        self.assertEqual(heuristics._calculate_height_and_bumpiness(env.board)[0], 4)
+    @theory(((1, 0), (2, 4), (3, 4)))
+    def test_height(self, board_id, max_height):
+        board = load_board(board_id)
 
-    def test_bumpiness(self):
-        env = Tetris(8, 16)
-        heuristics = Heuristics()
-        env.shape = Tetris.SHAPES[5]
-        env.rotate(2)
-        env.hard_drop()
-        self.assertEqual(heuristics._calculate_height_and_bumpiness(env.board)[1], 2)
+        actual_max_height, _ = heuristics._calculate_max_height_and_bumpiness(board)
+
+        self.assertEqual(actual_max_height, max_height)
+
+    @theory(((1, 0), (2, 4), (3, 0)))
+    def test_bumpiness(self, board_id, bumpiness):
+        board = load_board(board_id)
+
+        _, actual_bumpiness = heuristics._calculate_max_height_and_bumpiness(board)
+
+        self.assertEqual(actual_bumpiness, bumpiness)
 
 class TestCountFullLinesFunction(unittest.TestCase):
-    def test_count_full_lines(self):
-        env = Tetris(8, 16)
-        heuristics = Heuristics()
-        env._place_shape(env.board, Tetris.SHAPES[5], (0, 1))
-        env._place_shape(env.board, Tetris.SHAPES[5], (4, 1))
-        self.assertEqual(heuristics._count_full_rows(env.board), 1)
+    @theory(((1, 0), (2, 0), (3, 4)))
+    def test_count_full_lines(self, board_id, full_rows):
+        board = load_board(board_id)
+
+        actual_full_rows = heuristics._count_full_rows(board)
+
+        self.assertEqual(actual_full_rows, full_rows)
         
 class TestPillarCheckFunction(unittest.TestCase):
-    def test_check_one_pillar(self):
-        env = Tetris(8, 16)
-        heuristics = Heuristics()
-        for i in range(env.board.shape[1] - 1):
-            env.shape = Tetris.SHAPES[5]
-            env.rotate()
-            env.shape_x = i
-            env.hard_drop()
-        self.assertEqual(heuristics._check_for_pillar(env.board), 1)
-        
+    @theory(((1, 0), (2, 1)))
+    def test_check_pillar(self, board_id, have_pillar):
+        board = load_board(board_id)
+
+        actual_have_pillar = heuristics._check_for_pillar(board)
+
+        self.assertEqual(actual_have_pillar, have_pillar)
+
 
 if __name__ == '__main__':
     unittest.main()
