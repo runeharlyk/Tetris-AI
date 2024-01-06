@@ -39,20 +39,20 @@ The project uses Python 3.11.x which can be down from the [official website](htt
 
 1. Clone the repo
 
-    ```console
+    ```sh
     git clone https://github.com/runeharlyk/Tetris-AI.git
     cd Tetris-AI
     ```
 
 1. Setup [virtual environment](https://docs.python.org/3/library/venv.html) (Optional)
 
-    ```console
+    ```sh
     python -m venv TetrisEnv
     ```
 
 1. Install the dependencies
 
-    ```console
+    ```sh
     pip install -r requirements.txt
     ```
 
@@ -60,13 +60,13 @@ The project uses Python 3.11.x which can be down from the [official website](htt
 
 To train a model, run their training script eg.
 
-```console
+```sh
 python train_DQLAgent.py
 ```
 
 To test, without modifying, the models run their test script eg.
 
-```console
+```sh
 python test_DQNAgent.py
 ```
 
