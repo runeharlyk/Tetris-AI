@@ -1,5 +1,4 @@
 import pygame
-from environment.config import Config
 from environment.colors import Color
 
 class PyGameRenderer():
@@ -10,39 +9,48 @@ class PyGameRenderer():
     def render(self, env):
         if not pygame.get_init():
             pygame.init()
-            pygame.key.set_repeat(250,25)
             self.width  = env.cols * self.cell_size + self.cell_size * 10
             self.height = env.rows * self.cell_size + self.cell_size
             self.screen = pygame.display.set_mode((self.width, self.height))
+            self.transparent_surface = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
+            self.transparent_surface.set_alpha(128)
+            self.transparent_surface.fill((0, 0, 0, 128))
             pygame.event.set_blocked(pygame.MOUSEMOTION) 
             self.font = pygame.font.Font(None, 36)
 
-        self.screen.fill((0,0,0))
+        self.screen.fill((0, 0, 0))
+
+        self.top_msg(f'Score: {env.score}')
+        self.draw_rect((255, 0, 0), 5, 0, env.cols, env.rows)
+        for i, shape in enumerate(env.held_shapes):
+            self.draw_matrix(shape, (1, i * 3 + 1))
+        self.draw_matrix(env.board, (5, 0))
+        self.draw_matrix(env.shape, (env.shape_x + 5, env.shape_y + 1))
+        for i, shape in enumerate(env.next_shapes):
+            self.draw_matrix(shape, (env.board.shape[1] + 6, i * 3 + 1))
+        self.draw_grid()
+        self.draw_stats(env)
 
         if env.done:
+            self.add_backdrop()
             self.center_msg(f"Game Over!\nPress r to restart\nFinal score:{env.score}")
-        else:
-            if env.paused:
-                self.center_msg("Paused")
-            else:
-                self.top_msg(f'Score: {env.score}')
-                self.draw_rect((255, 0, 0), 5, 0, env.cols, env.rows)
-                for i, shape in enumerate(env.held_shapes):
-                    self.draw_matrix(shape, (1, i*3 + 1))
-                self.draw_matrix(env.board, (5,0))
-                self.draw_matrix(env.shape, (env.shape_x + 5, env.shape_y + 1))
-                for i, shape in enumerate(env.next_shapes):
-                    self.draw_matrix(shape, (env.board.shape[1]+6, i*3 + 1))
-                self.draw_grid()
-                self.draw_stats(env)
+
+        if env.paused:
+            self.add_backdrop()
+            self.center_msg("Paused")
+
         pygame.display.update()
+
+    def add_backdrop(self):
+        self.transparent_surface.fill((0, 0, 0, 254))
+        self.screen.blit(self.transparent_surface, (0, 0))
 
     def draw_stats(self, env):
         stats = f'Lines:{env.lines} Pieces:{env.pieces} Level:{env.level}'
         for i, line in enumerate(stats.split()):
             msg_image = self.font_img(line)
             text_offset_x = (env.board.shape[1]+6) * self.cell_size
-            text_offset_y = (i + len(env.next_shapes)*3 + 1) * self.cell_size
+            text_offset_y = (i + len(env.next_shapes) * 3 + 1) * self.cell_size
             self.screen.blit(msg_image, (text_offset_x, text_offset_y))
 
     def draw_rect(self, color, left, top, width, height):
