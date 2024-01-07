@@ -18,5 +18,8 @@ class Controller:
         for action in self.getActions():
             action()
 
-    def addEvent(self, event_id:int, ms:int):
+    def setEventTimer(self, event_id:int, ms:int):
         pygame.time.set_timer(pygame.USEREVENT+event_id, ms)
+
+    def removeEventTimer(self, event_id:int):
+        self.setEventTimer(event_id, 0)
