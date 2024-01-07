@@ -49,6 +49,7 @@ class Tetris:
         self.level = 1
         self.held_shapes = []
         self.next_shapes = []
+        self.bag = []
         self._get_new_shapes()
         self.state = np.array([0, 0, 0, 0, 0])
         return self.state
@@ -139,7 +140,10 @@ class Tetris:
         return score
 
     def _get_new_random_shape(self):
-        return random.choice(self.SHAPES)
+        if not self.bag:
+            self.bag = self.SHAPES.copy()
+            random.shuffle(self.bag)
+        return self.bag.pop()
 
     def _get_new_shapes(self):
         self.next_shapes.extend([self._get_new_random_shape() for _ in range(4 - len(self.next_shapes))])
