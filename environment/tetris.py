@@ -123,11 +123,9 @@ class Tetris:
         return new_x
 
     def _soft_drop(self, board:np.ndarray, shape:np.ndarray, offset:tuple) -> int:
-        self.prev_score = self.score
         x, y = offset
         while not self._check_collision(board, shape, (x, y + 1)):
             y += 1
-        self.score += y - offset[1]
         return y
     
     def _new_board(self) -> np.ndarray[np.ndarray[int]]:
@@ -199,8 +197,11 @@ class Tetris:
         return self.done, self.score, self.score - self.prev_score
 
     def soft_drop(self):
+        self.prev_score = self.score
+        prev_y = self.shape_y
         self.shape_y = self._soft_drop(self.board, self.shape, (self.shape_x, self.shape_y))
-
+        self.score += self.shape_y - prev_y
+        
     def hard_drop(self) -> tuple[bool, int, int]:
         self.soft_drop()
         return self.down()
