@@ -28,8 +28,8 @@ class Tester():
         self.renderer.render(self.env)
     
         self.controller = Controller(self.key_actions)
-        self.controller.addEvent(Config.delay_id, Config.down_delay)
-        self.controller.addEvent(Config.print_id, Config.print_delay)
+        self.controller.setEventTimer(Config.delay_id, Config.down_delay)
+        self.controller.setEventTimer(Config.print_id, Config.print_delay)
 
     def toggle_render(self):
         self.render = not self.render

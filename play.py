@@ -24,13 +24,17 @@ class TetrisApp():
         self.renderer.render(self.env) 
     
         self.controller = Controller(self.key_actions)
-        self.controller.addEvent(Config.delay_id, Config.down_delay)
+        self.controller.setEventTimer(Config.delay_id, Config.down_delay)
 
     def quit(self):
         self.exit_program = True
 
     def pause(self):
         self.env.paused = not self.env.paused
+        if self.env.paused:
+            self.controller.removeEventTimer(Config.delay_id)
+        else:
+            self.controller.setEventTimer(Config.delay_id, Config.down_delay)
 
     def start(self):
         self.exit_program = False
