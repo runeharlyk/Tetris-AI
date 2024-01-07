@@ -81,9 +81,12 @@ class Tetris:
                 max_x = int(self.cols - rotated.shape[1] + 1)
                 for x in range(max_x):
                     actions.append((x, rotation, holding))
-                rotations.append(str(rotated))
             self.hold()
-        return actions  
+        return actions 
+    
+    def get_possible_states(self):
+        next_actions = self.get_possible_actions() 
+        return {action:self._get_state(*action) for action in next_actions}
 
     # Private tetris
 
