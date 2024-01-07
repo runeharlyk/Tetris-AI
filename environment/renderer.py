@@ -11,23 +11,23 @@ class PyGameRenderer():
         if not pygame.get_init():
             pygame.init()
             self.width  = env.cols * self.cell_size + self.cell_size * 10
-            self.height = env.rows * self.cell_size + self.cell_size
+            self.height = env.rows * self.cell_size + self.cell_size * 2
             self.screen = pygame.display.set_mode((self.width, self.height))
             self.surface = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
             pygame.event.set_blocked(pygame.MOUSEMOTION) 
             self.font = pygame.font.Font(None, 36)
 
+        self.surface.set_alpha(255)
         self.screen.fill((0, 0, 0))
-        
         self.surface.fill((0, 0, 0))
 
         self.top_msg(f'Score: {env.score}')
-        self.draw_rect((255, 0, 0), 5, 0, env.cols, env.rows)
+        self.draw_rect((255, 0, 0), 5, 1, env.cols, env.rows)
         for i, shape in enumerate(env.held_shapes):
             self.draw_matrix(shape, (1, i * 3 + 1))
-        self.draw_matrix(env.board, (5, 0))
-        self.draw_matrix(env.shape, (env.shape_x + 5, env.shape_y))
-        self.draw_matrix(env.shape, (env.shape_x + 5, env._soft_drop(env.board, env.shape, (env.shape_x, env.shape_y))), 2)
+        self.draw_matrix(env.board, (5, 1))
+        self.draw_matrix(env.shape, (env.shape_x + 5, env.shape_y + 1))
+        self.draw_matrix(env.shape, (env.shape_x + 5, env._soft_drop(env.board, env.shape, (env.shape_x, env.shape_y)) + 1), 2)
         for i, shape in enumerate(env.next_shapes):
             self.draw_matrix(shape, (env.board.shape[1] + 6, i * 3 + 1))
         self.draw_grid()
@@ -45,8 +45,9 @@ class PyGameRenderer():
         pygame.display.update()
 
     def add_backdrop(self):
-        self.surface.fill((0, 0, 0, 254))
-
+        self.surface.set_alpha(100)
+        self.surface.fill((0, 200, 0, 0))
+        
     def draw_stats(self, env):
         stats = f'Lines:{env.lines} Pieces:{env.pieces} Level:{env.level}'
         for i, line in enumerate(stats.split()):
@@ -94,6 +95,6 @@ class PyGameRenderer():
         for y, row in enumerate(matrix):
             for x, val in enumerate(row):
                 if not val: continue
-                color = Color.ALL[int(val)]
+                color = Color.ALL[val] if val < len(Color.ALL) else Color.GRAY
                 rect = pygame.Rect((off_x+x) * self.cell_size, (off_y+y) * self.cell_size, self.cell_size, self.cell_size)
                 pygame.draw.rect(self.surface, (*color, opacity), rect, width)
