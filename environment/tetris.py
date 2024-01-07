@@ -16,7 +16,7 @@ class Tetris:
         np.array([[7, 7], [7, 7]])
     ]
 
-    def __init__(self, columns, rows):
+    def __init__(self, columns:int, rows:int):
         self.cols = columns
         self.rows = rows
         self.high_score = 0
@@ -37,7 +37,7 @@ class Tetris:
             out += f"\n{row}"
         return out
 
-    def reset(self):
+    def reset(self) -> np.ndarray[int]:
         self.done = False
         self.paused = False
         self.board = self._new_board()
@@ -54,7 +54,7 @@ class Tetris:
         self.state = np.array([0, 0, 0, 0, 0])
         return self.state
 
-    def _get_current_state(self, board:np.ndarray, shape:np.ndarray, offset:tuple):
+    def _get_current_state(self, board:np.ndarray, shape:np.ndarray, offset:tuple) -> np.ndarray[int]:
         new_board = board.copy()
         self._place_shape(new_board, shape, offset)
         return self.heuristics.get_heuristics(new_board)
@@ -91,10 +91,10 @@ class Tetris:
 
     # Private tetris
 
-    def _rotate_clockwise(self, shape:np.ndarray, times:int=1):
+    def _rotate_clockwise(self, shape:np.ndarray, times:int=1) -> np.ndarray:
         return np.rot90(shape, times * -1)
 
-    def _check_collision(self, board:np.ndarray, shape:np.ndarray, offset:tuple):
+    def _check_collision(self, board:np.ndarray, shape:np.ndarray, offset:tuple) -> int:
         off_x, off_y = offset
         shape_height, shape_width = shape.shape
         rows, cols = board.shape
@@ -104,25 +104,25 @@ class Tetris:
 
         return np.any(np.logical_and(shape, board_area))
 
-    def _place_shape(self, board:np.ndarray, shape:np.ndarray, offset:tuple):
+    def _place_shape(self, board:np.ndarray, shape:np.ndarray, offset:tuple) -> None:
         off_x, off_y = offset
         for cy, row in enumerate(shape):
             for cx, val in enumerate(row):
                 board[cy+off_y-1][cx+off_x] += val
 
-    def _rotate(self, board:np.ndarray, shape:np.ndarray, offset:tuple, times:int=1):
+    def _rotate(self, board:np.ndarray, shape:np.ndarray, offset:tuple, times:int=1) -> np.ndarray:
         new_shape = self._rotate_clockwise(shape, times)
         if not self._check_collision(board, new_shape, offset):
             return new_shape
         return shape
     
-    def _move(self, board:np.ndarray, shape:np.ndarray, offset:tuple, delta_x:int):
+    def _move(self, board:np.ndarray, shape:np.ndarray, offset:tuple, delta_x:int) -> int:
         new_x = max(0, min(offset[0] + delta_x, board.shape[1] - shape.shape[1]))
         if self._check_collision(board, shape, (new_x, offset[1])):
             return offset[0]
         return new_x
 
-    def _soft_drop(self, board:np.ndarray, shape:np.ndarray, offset:tuple):
+    def _soft_drop(self, board:np.ndarray, shape:np.ndarray, offset:tuple) -> int:
         self.prev_score = self.score
         x, y = offset
         while not self._check_collision(board, shape, (x, y + 1)):
@@ -130,16 +130,16 @@ class Tetris:
         self.score += y - offset[1]
         return y
     
-    def _new_board(self):
+    def _new_board(self) -> np.ndarray[np.ndarray[int]]:
         return np.zeros((self.rows, self.cols), dtype=int)
     
-    def _add_points(self, lines_cleared:int):
+    def _add_points(self, lines_cleared:int) -> int:
         self.lines += lines_cleared
         score = line_points[lines_cleared] * self.level
         self.score += score
         return score
 
-    def _get_new_random_shape(self):
+    def _get_new_random_shape(self) -> np.ndarray[np.ndarray[int]]:
         if not self.bag:
             self.bag = self.SHAPES.copy()
             random.shuffle(self.bag)
@@ -154,7 +154,7 @@ class Tetris:
         if self._check_collision(self.board, self.shape, (self.shape_x, self.shape_y)):
             self.done = True   
 
-    def _clear_lines(self, board:np.ndarray):
+    def _clear_lines(self, board:np.ndarray) -> int:
         full_rows = np.all(board != 0, axis=1)
         num_full_rows = np.sum(full_rows)
         if num_full_rows == 0: return 0
@@ -193,7 +193,7 @@ class Tetris:
             self.shape = shape
             self.move(0)
 
-    def down(self):
+    def down(self) -> tuple[bool, int, int]:
         self.shape_y += 1
         self._evaluate_position()
         return self.done, self.score, self.score - self.prev_score
@@ -201,11 +201,11 @@ class Tetris:
     def soft_drop(self):
         self.shape_y = self._soft_drop(self.board, self.shape, (self.shape_x, self.shape_y))
 
-    def hard_drop(self):
+    def hard_drop(self) -> tuple[bool, int, int]:
         self.soft_drop()
         return self.down()
 
-    def step(self, delta_x:int, rotation:int, holding):
+    def step(self, delta_x:int, rotation:int, holding) -> tuple[bool, int, int]:
         if holding:
             self.hold()
         self.rotate(rotation)
