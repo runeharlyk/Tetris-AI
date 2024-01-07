@@ -59,35 +59,29 @@ class Tetris:
         self._place_shape(new_board, shape, offset)
         return self.heuristics.get_heuristics(new_board)
     
-    def get_possible_states(self):
-        states = {}
-        shape_x = self.shape_x
+    def _get_state(self, x, rotation, holding):
         board = self.board.copy()
-        _, cols = board.shape
+        shape = self.held_shapes[0] if holding else self.shape
+        rotated = self._rotate(self.board, shape, (self.shape_x, 0), rotation)
+        y = 0
+        while not self._check_collision(board, rotated, (x, y + 1)):
+            y += 1
+        return self._get_current_state(board[:], rotated, (x, y))
+
+    def get_possible_actions(self):
         rotations = []
-        str_states = []
+        actions = []
 
         for holding in range(2):
-            shape = self.shape
-            for rotation in range(4):
-                rotated = self._rotate(board, shape, (shape_x, 0), rotation)
+            for rotation in range(4): 
+                rotated = self._rotate(self.board, self.shape, (self.shape_x, 0), rotation)
                 if str(rotated) in rotations:
                     continue
-                rotations.append(str(rotated))
-                max_x = int(cols - rotated.shape[1] + 1)
+                max_x = int(self.cols - rotated.shape[1] + 1)
                 for x in range(max_x):
-                    y = 0
-                    while not self._check_collision(board, rotated, (x, y + 1)):
-                        y += 1
-                    state = self._get_current_state(board[:], rotated, (x, y))
-                    if str(state) in str_states:
-                        continue
-                    str_states.append(str(state))
-                    states[(x, rotation, holding)] = state
+                    actions.append((x, rotation, holding))
             self.hold()
-
-        return states
-    
+        return actions  
 
     # Private tetris
 

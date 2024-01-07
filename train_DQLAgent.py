@@ -1,3 +1,4 @@
+import multiprocessing
 from environment.config import Config
 from environment.controls import Controller
 from environment.tetris import Tetris
@@ -13,6 +14,8 @@ class Trainer():
         self.render = True
         self.should_plot = True
         self.played = self.last_played = 0
+        self.exit_program = False
+
         
         self.key_actions = {
             "quit":     self.quit,
@@ -50,36 +53,43 @@ class Trainer():
 
     def run_episodes(self, max_episode, max_steps):
         try:
-            rewards = [self.run_episode(i, max_steps) for i in range(max_episode)]
-            return rewards
+            num_processes = multiprocessing.cpu_count()
+            with multiprocessing.Pool(processes = num_processes) as pool:
+                rewards = [self.run_episode(i, max_steps, pool) for i in range(max_episode) if not self.exit_program]
+                return rewards
         except Exception as error:
             print(error)
+            self.exit_program = True
         finally:
             return []
 
-    def run_episode(self, episode, max_steps):
+    def run_episode(self, episode, max_steps, pool):
         self.played = episode
         current_state = self.env.reset()
         score = 0
         done = False
         max_steps = 25000
         step = 0
-        self.exit_program = False
-        while not self.exit_program:
+        
+        while not done:
             if self.render:
                 self.renderer.render(self.env) 
                 self.renderer.wait(1)
-            next_states = self.env.get_possible_states()
-            best_action = agent.act(next_states)
+
+            next_actions = env.get_possible_actions()
+            next_states = pool.starmap(env._get_state, next_actions)
+            next_action_states = {action:next_states[i] for i, action in enumerate(next_actions)}
+
+            best_action = agent.act(next_action_states)
             done, score, reward = env.step(*best_action)
 
             self.controller.handleEvents()
 
-            agent.add_to_memory(current_state, next_states[best_action], reward, done)
+            agent.add_to_memory(current_state, next_action_states[best_action], reward, done)
 
             if done or step > max_steps: break
 
-            current_state = next_states[best_action]
+            current_state = next_action_states[best_action]
 
             step += 1
 
