@@ -64,8 +64,9 @@ class Tester():
             if self.render:
                 self.renderer.render(self.env) 
                 self.renderer.wait(1)
-            next_states = self.env.get_possible_states()
-            best_action = agent.act(next_states)
+            next_actions = self.env.get_possible_actions()
+            next_action_states = {action:env._get_state(*action) for action in next_actions}
+            best_action = agent.act(next_action_states)
             done, score, reward = env.step(*best_action)
             total_reward += reward
 
@@ -81,7 +82,7 @@ if __name__ == '__main__':
     model_path = f'model_dql_{width}_{height}.pt'
 
     env = Tetris(width, height)
-    agent = DQLAgent(4, model_path, 0)
+    agent = DQLAgent(5, model_path, 0)
 
     tester = Tester(env, agent)
     tester.run(100)
