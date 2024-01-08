@@ -4,15 +4,16 @@ from environment.tetris import Tetris
 from utils.heuristics import Heuristics
 
 class RenderConfig():
-    def __init__(self, bg_color, grid_color, highlight_color, render_bumpiness=False, show_ghost_piece=True) -> None:
+    def __init__(self, bg_color, grid_color, highlight_color, text_color, render_bumpiness=False, show_ghost_piece=True) -> None:
         self.bg_color = bg_color
         self.grid_color = grid_color
         self.highlight_color = highlight_color
         self.render_bumpiness = render_bumpiness
         self.show_ghost_piece = show_ghost_piece
+        self.text_color = text_color
 
-NES_Tetris_Config = RenderConfig(Color.BLACK, Color.BLACK, Color.WHITE)
-PAPER_Tetris_Config = RenderConfig(Color.GRAY, Color.WHITE, Color.PINK, True, False)
+NES_Tetris_Config = RenderConfig(Color.BLACK, Color.BLACK, Color.WHITE, Color.WHITE)
+PAPER_Tetris_Config = RenderConfig(Color.GRAY, Color.WHITE, Color.PINK, Color.BLACK, True, False)
 
 class PyGameRenderer():
     def __init__(self, cell_size, config=NES_Tetris_Config):
@@ -96,7 +97,7 @@ class PyGameRenderer():
         self.surface.blit(msg_image, (self.width // 2-msgim_center_x, 0))
 
     def font_img(self, text):
-        return pygame.font.Font(pygame.font.get_default_font(), 12).render(text, False, (255,255,255), (0,0,0))
+        return pygame.font.Font(pygame.font.get_default_font(), 12).render(text, False, self.config.text_color, self.config.bg_color)
 
     def center_msg(self, msg):
         for i, line in enumerate(msg.splitlines()):
