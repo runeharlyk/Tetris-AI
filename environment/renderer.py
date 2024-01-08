@@ -3,11 +3,23 @@ from environment.colors import Color
 from environment.tetris import Tetris
 from utils.heuristics import Heuristics
 
+class RenderConfig():
+    def __init__(self, bg_color, grid_color, highlight_color, render_bumpiness=False, show_ghost_piece=True) -> None:
+        self.bg_color = bg_color
+        self.grid_color = grid_color
+        self.highlight_color = highlight_color
+        self.render_bumpiness = render_bumpiness
+        self.show_ghost_piece = show_ghost_piece
+
+NES_Tetris_Config = RenderConfig(Color.BLACK, Color.BLACK, Color.WHITE)
+PAPER_Tetris_Config = RenderConfig(Color.GRAY, Color.WHITE, Color.PINK, True, False)
+
 class PyGameRenderer():
-    def __init__(self, cell_size):
+    def __init__(self, cell_size, config=NES_Tetris_Config):
         self.clock = pygame.time.Clock()
         self.cell_size = cell_size
         self.heuristics = Heuristics()
+        self.config = config
 
     def render(self, env:Tetris):
         if not pygame.get_init():
@@ -20,21 +32,24 @@ class PyGameRenderer():
             self.font = pygame.font.Font(None, 36)
 
         self.surface.set_alpha(255)
-        self.screen.fill((0, 0, 0))
-        self.surface.fill((0, 0, 0))
+        self.screen.fill(self.config.bg_color)
+        self.surface.fill(self.config.bg_color)
 
         self.top_msg(f'Score: {env.score}')
-        self.draw_rect((255, 0, 0), 5, 1, env.cols, env.rows)
+        # self.draw_rect((255, 0, 0), 5, 1, env.cols, env.rows)
         for i, shape in enumerate(env.held_shapes):
             self.draw_matrix(shape, (1, i * 3 + 1))
         self.draw_matrix(env.board, (5, 1))
         self.draw_matrix(env.shape, (env.shape_x + 5, env.shape_y + 1))
-        self.draw_matrix(env.shape, (env.shape_x + 5, env._soft_drop(env.board, env.shape, (env.shape_x, env.shape_y)) + 1), 2)
+        if self.config.show_ghost_piece:
+            self.draw_matrix(env.shape, (env.shape_x + 5, env._soft_drop(env.board, env.shape, (env.shape_x, env.shape_y)) + 1), 2)
         for i, shape in enumerate(env.next_shapes):
             self.draw_matrix(shape, (env.board.shape[1] + 6, i * 3 + 1))
         self.draw_grid()
         self.draw_stats(env)
-        self.draw_bumpiness(env.board)
+
+        if self.config.render_bumpiness:
+            self.draw_bumpiness(env.board)
 
         if env.done:
             self.add_backdrop()
@@ -66,9 +81,9 @@ class PyGameRenderer():
 
     def draw_grid(self):
         for i in range(self.width // self.cell_size):
-            pygame.draw.line(self.surface, (0, 0, 0), (i * self.cell_size, 0), (i * self.cell_size, self.height * self.cell_size))
+            pygame.draw.line(self.surface, self.config.grid_color, (i * self.cell_size, 0), (i * self.cell_size, self.height * self.cell_size))
         for i in range(self.height // self.cell_size):
-            pygame.draw.line(self.surface, (0, 0, 0), (0, i * self.cell_size), (self.width * self.cell_size, i * self.cell_size))
+            pygame.draw.line(self.surface, self.config.grid_color, (0, i * self.cell_size), (self.width * self.cell_size, i * self.cell_size))
 
     def wait(self, ms):
         self.clock.tick(1000 / ms)
@@ -108,8 +123,8 @@ class PyGameRenderer():
             rows, cols = board.shape
             start = ((i + 5) * self.cell_size, (rows - height + 1) * self.cell_size)
             end = ((i + 6) * self.cell_size, (rows - height + 1) * self.cell_size)
-            pygame.draw.line(self.surface, (255, 255, 255), start , end, 5)
+            pygame.draw.line(self.surface, self.config.highlight_color, start , end, 5)
             if i < len(heights) - 1:
                 start = ((i + 6) * self.cell_size, (rows - heights[i + 1] + 1) * self.cell_size)
-                pygame.draw.line(self.surface, (255, 255, 255), end, start , 5)
+                pygame.draw.line(self.surface, self.config.highlight_color, end, start , 5)
  

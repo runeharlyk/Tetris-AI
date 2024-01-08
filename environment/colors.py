@@ -9,5 +9,7 @@ class Color:
     CYAN   = (0,   240, 240)
     YELLOW = (240, 240, 0  )
     PURPLE = (160, 0,   240)
+    GRAY   = (240, 240, 240)
+    PINK   = (255, 20,  147)
 
     ALL = [BLACK, PURPLE, GREEN, RED, BLUE, ORANGE, CYAN, YELLOW]
