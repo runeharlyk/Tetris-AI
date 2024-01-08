@@ -2,6 +2,7 @@ from environment.config import *
 from environment.controls import Controller
 from environment.tetris import Tetris
 from environment.renderer import PyGameRenderer, PAPER_Tetris_Config
+from copy import copy
 
 board = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -26,7 +27,14 @@ board = [
 ]
 
 env = Tetris(10, 20)
-renderer = PyGameRenderer(30, PAPER_Tetris_Config)
+
+render_config = copy(PAPER_Tetris_Config)
+render_config.render_holes = True
+render_config.render_bumpiness = False
+render_config.render_max_height = False
+render_config.show_ghost_piece = False
+
+renderer = PyGameRenderer(30, render_config)
 
 key_actions = {
     "left":     lambda: env.move(-1),

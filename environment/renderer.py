@@ -1,19 +1,22 @@
+import numpy as np
 import pygame
 from environment.colors import Color
 from environment.tetris import Tetris
 from utils.heuristics import Heuristics
 
 class RenderConfig():
-    def __init__(self, bg_color, grid_color, highlight_color, text_color, render_bumpiness=False, show_ghost_piece=True) -> None:
+    def __init__(self, bg_color, grid_color, highlight_color, text_color, render_bumpiness=False, render_holes=False, render_max_height=False, show_ghost_piece=True) -> None:
         self.bg_color = bg_color
         self.grid_color = grid_color
         self.highlight_color = highlight_color
         self.render_bumpiness = render_bumpiness
+        self.render_holes = render_holes
+        self.render_max_height = render_max_height
         self.show_ghost_piece = show_ghost_piece
         self.text_color = text_color
 
 NES_Tetris_Config = RenderConfig(Color.BLACK, Color.BLACK, Color.WHITE, Color.WHITE)
-PAPER_Tetris_Config = RenderConfig(Color.GRAY, Color.WHITE, Color.PINK, Color.BLACK, True, False)
+PAPER_Tetris_Config = RenderConfig(Color.GRAY, Color.WHITE, Color.PINK, Color.BLACK)
 
 class PyGameRenderer():
     def __init__(self, cell_size, config=NES_Tetris_Config):
@@ -49,8 +52,7 @@ class PyGameRenderer():
         self.draw_grid()
         self.draw_stats(env)
 
-        if self.config.render_bumpiness:
-            self.draw_bumpiness(env.board)
+        self.draw_heuristics(env)
 
         if env.done:
             self.add_backdrop()
@@ -117,15 +119,46 @@ class PyGameRenderer():
                 color = Color.ALL[val] if val < len(Color.ALL) else Color.GRAY
                 rect = pygame.Rect((off_x+x) * self.cell_size, (off_y+y) * self.cell_size, self.cell_size, self.cell_size)
                 pygame.draw.rect(self.surface, (*color, opacity), rect, width)
-                
+
+    def draw_heuristics(self, env):
+        if self.config.render_bumpiness:
+            self.draw_bumpiness(env.board)
+
+        if self.config.render_holes:
+            self.draw_holes(env.board)
+
+        if self.config.render_max_height:
+            self.draw_max_height(env.board)
+
     def draw_bumpiness(self, board):
         heights = self.heuristics._get_heights(board)
         for i, height in enumerate(heights):
-            rows, cols = board.shape
+            rows, _ = board.shape
             start = ((i + 5) * self.cell_size, (rows - height + 1) * self.cell_size)
             end = ((i + 6) * self.cell_size, (rows - height + 1) * self.cell_size)
-            pygame.draw.line(self.surface, self.config.highlight_color, start , end, 5)
+            pygame.draw.line(self.surface, self.config.highlight_color, start, end, 5)
             if i < len(heights) - 1:
                 start = ((i + 6) * self.cell_size, (rows - heights[i + 1] + 1) * self.cell_size)
-                pygame.draw.line(self.surface, self.config.highlight_color, end, start , 5)
+                pygame.draw.line(self.surface, self.config.highlight_color, end, start, 5)
  
+    def draw_holes(self, board):
+        bridge_mask = board != 0
+        rows, cols = board.shape
+
+        for col in range(cols):
+            if np.any(bridge_mask[:-1, col]):
+                bridge_row = np.argmax(bridge_mask[:, col])
+                for row in range(bridge_row + 1, rows):
+                    if not bridge_mask[row, col]:
+                        x = (col + 5) * self.cell_size
+                        y = (row + 1 ) * self.cell_size
+                        pygame.draw.rect(self.surface, self.config.highlight_color, (x, y, self.cell_size, self.cell_size), 4)
+
+    def draw_max_height(self, board):
+        max_heights = np.max(self.heuristics._get_heights(board))
+        rows, cols = board.shape
+
+        start = (5 * self.cell_size, (rows - max_heights + 1) * self.cell_size)
+        end = ((cols + 6) * self.cell_size, (rows - max_heights + 1) * self.cell_size)
+        pygame.draw.line(self.surface, self.config.highlight_color, start , end, 5)
+            
