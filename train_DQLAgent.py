@@ -61,6 +61,8 @@ class Trainer():
             print(error)
             self.exit_program = True
         finally:
+            pool.close()
+            pool.join()
             return []
 
     def run_episode(self, episode, max_steps, pool):
