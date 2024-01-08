@@ -1,11 +1,13 @@
 import pygame
 from environment.colors import Color
 from environment.tetris import Tetris
+from utils.heuristics import Heuristics
 
 class PyGameRenderer():
     def __init__(self, cell_size):
         self.clock = pygame.time.Clock()
         self.cell_size = cell_size
+        self.heuristics = Heuristics()
 
     def render(self, env:Tetris):
         if not pygame.get_init():
@@ -32,6 +34,7 @@ class PyGameRenderer():
             self.draw_matrix(shape, (env.board.shape[1] + 6, i * 3 + 1))
         self.draw_grid()
         self.draw_stats(env)
+        self.draw_bumpiness(env.board)
 
         if env.done:
             self.add_backdrop()
@@ -98,3 +101,15 @@ class PyGameRenderer():
                 color = Color.ALL[val] if val < len(Color.ALL) else Color.GRAY
                 rect = pygame.Rect((off_x+x) * self.cell_size, (off_y+y) * self.cell_size, self.cell_size, self.cell_size)
                 pygame.draw.rect(self.surface, (*color, opacity), rect, width)
+                
+    def draw_bumpiness(self, board):
+        heights = self.heuristics._get_heights(board)
+        for i, height in enumerate(heights):
+            rows, cols = board.shape
+            start = ((i + 5) * self.cell_size, (rows - height + 1) * self.cell_size)
+            end = ((i + 6) * self.cell_size, (rows - height + 1) * self.cell_size)
+            pygame.draw.line(self.surface, (255, 255, 255), start , end, 5)
+            if i < len(heights) - 1:
+                start = ((i + 6) * self.cell_size, (rows - heights[i + 1] + 1) * self.cell_size)
+                pygame.draw.line(self.surface, (255, 255, 255), end, start , 5)
+ 
