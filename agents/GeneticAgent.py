@@ -10,8 +10,7 @@ class GeneticAgent():
         self.num_parents = num_parents
         self.num_gens = num_gens
         
-        self.weights = [[np.random.uniform(-1, 1) for _ in range(4)] for _ in range(self.population_size)]
-    
+        self.weights = np.random.uniform(-1, 1, (population_size, state_size))
     def mutate(self,weights):
         return [w + np.random.uniform(-0.02, 0.02) for w in weights]        
     
@@ -36,5 +35,5 @@ class GeneticAgent():
     
     def breed(self,parent1,parent2):
         split = np.random.randint(1, len(parent1) - 1)
-        child = parent1[:split] + parent2[split:]
+        child = np.concatenate([parent1[:split], parent2[split:]]) 
         return self.mutate(child)
