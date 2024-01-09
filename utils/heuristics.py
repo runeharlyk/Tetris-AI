@@ -19,9 +19,11 @@ class Heuristics:
     def _calculate_max_height_and_bumpiness(self, board:np.ndarray):
         heights = self._get_heights(board)
         max_height = np.max(heights)
+        min_height = np.min(heights)
+        mean_heights = np.mean(heights)
         bumpiness = np.sum(np.abs(np.diff(heights)))
 
-        return max_height, bumpiness
+        return min_height, mean_heights, max_height, bumpiness
     
     def _count_full_rows(self, board:np.ndarray):
         full_rows = np.all(board != 0, axis=1)
@@ -50,9 +52,9 @@ class Heuristics:
     def get_heuristics(self, board:np.ndarray):
         cleared_lines = self._count_full_rows(board)
         holes = self._count_bridges(board)
-        bumpiness, height = self._calculate_max_height_and_bumpiness(board)
+        min_height, mean_heights, max_height, bumpiness = self._calculate_max_height_and_bumpiness(board)
         check_pillar = self._check_for_pillar(board)
-        return np.array([cleared_lines, holes, bumpiness, height,check_pillar])
+        return np.array([cleared_lines, holes, bumpiness, max_height,check_pillar])
     
     def _get_heights(self, board):
         return np.max(np.where(board != 0, len(board) - np.arange(len(board))[:, None], 0), axis=0)
