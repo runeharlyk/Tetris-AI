@@ -23,7 +23,7 @@ class TestHeightAndBumpinesssFunction(unittest.TestCase):
     def test_height(self, board_id, max_height):
         board = load_board(board_id)
 
-        actual_max_height, _ = heuristics._calculate_max_height_and_bumpiness(board)
+        _, _, actual_max_height, _ = heuristics._calculate_max_height_and_bumpiness(board)
 
         self.assertEqual(actual_max_height, max_height)
 
@@ -31,7 +31,7 @@ class TestHeightAndBumpinesssFunction(unittest.TestCase):
     def test_bumpiness(self, board_id, bumpiness):
         board = load_board(board_id)
 
-        _, actual_bumpiness = heuristics._calculate_max_height_and_bumpiness(board)
+        _, _, _, actual_bumpiness = heuristics._calculate_max_height_and_bumpiness(board)
 
         self.assertEqual(actual_bumpiness, bumpiness)
 
