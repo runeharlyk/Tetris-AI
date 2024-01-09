@@ -15,8 +15,8 @@ class RenderConfig():
         self.show_ghost_piece = show_ghost_piece
         self.text_color = text_color
 
-NES_Tetris_Config = RenderConfig(Color.BLACK, Color.BLACK, Color.WHITE, Color.WHITE)
-PAPER_Tetris_Config = RenderConfig(Color.GRAY, Color.WHITE, Color.PINK, Color.BLACK)
+NES_Tetris_Config = RenderConfig(Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE)
+PAPER_Tetris_Config = RenderConfig(Color.GREYBLUE, Color.WHITE, Color.BLACK, Color.BLACK, True, False)
 
 class PyGameRenderer():
     def __init__(self, cell_size, config=NES_Tetris_Config):
