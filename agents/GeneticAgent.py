@@ -2,11 +2,15 @@ import numpy as np
 
 
 class GeneticAgent():
-    def __init__(self, state_size, elite, population_size=40) -> None:
+    def __init__(self, state_size, elite, population_size, max_steps, num_parents, num_gens) -> None:
         self.state_size = state_size
         self.elite = elite
+        self.max_steps = max_steps
+        self.population_size = population_size
+        self.num_parents = num_parents
+        self.num_gens = num_gens
         
-        self.weights = [[np.random.uniform(-1, 1) for _ in range(4)] for _ in range(population_size)]
+        self.weights = [[np.random.uniform(-1, 1) for _ in range(4)] for _ in range(self.population_size)]
     
     def mutate(self,weights):
         return [w + np.random.uniform(-0.02, 0.02) for w in weights]        
@@ -14,7 +18,7 @@ class GeneticAgent():
     def act(self, states, weights):
         return max(states.items(), key=lambda x: (sum(x[1][i] * weights[i] for i in range(0, 4))))[0]       
         
-    def get_fitness(self, env, weights, max_steps = 1000):
+    def get_fitness(self, env, weights):
         env.reset()
         steps = 0
         done = False
@@ -25,7 +29,7 @@ class GeneticAgent():
             
             steps += 1
             
-            if steps > max_steps:
+            if steps > self.max_steps:
                 break
             
         return score        
