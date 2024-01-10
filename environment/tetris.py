@@ -16,11 +16,12 @@ class Tetris:
         np.array([[7, 7], [7, 7]])
     ]
 
-    def __init__(self, columns:int, rows:int):
+    def __init__(self, columns:int, rows:int, use_level:bool=True):
         self.cols = columns
         self.rows = rows
         self.high_score = 0
         self.score = 0
+        self.use_level = use_level
         self.heuristics = Heuristics()
         
         self.reset()
@@ -123,12 +124,15 @@ class Tetris:
             y += 1
         return y
     
+    def _level_multiplier(self):
+        return self.level if self.use_level else 1
+    
     def _new_board(self) -> np.ndarray[np.ndarray[int]]:
         return np.zeros((self.rows, self.cols), dtype=int)
     
     def _add_points(self, lines_cleared:int) -> int:
         self.lines += lines_cleared
-        score = line_points[lines_cleared] * self.level
+        score = line_points[lines_cleared] * self._level_multiplier()
         self.score += score
         return score
 
