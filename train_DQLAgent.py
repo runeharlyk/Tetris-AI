@@ -70,7 +70,6 @@ class Trainer():
         current_state = self.env.reset()
         score = 0
         done = False
-        max_steps = 25000
         step = 0
         
         while not done:
@@ -109,7 +108,7 @@ if __name__ == '__main__':
     agent = DQLAgent(5)
 
     trainer = Trainer(env, agent)
-    trainer.run_episodes(10000, 25000)
+    trainer.run_episodes(10000, 1000)
     trainer.plot.update()
     agent.save(model_path)
     trainer.plot.freeze()
