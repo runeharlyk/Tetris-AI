@@ -30,7 +30,7 @@ class GeneticAgent():
         done = False
         while not done:
             next_states = env.get_possible_states()
-            best_action = self.act(next_states,weights)
+            best_action = self.act(next_states, weights)
             done, score, _ = env.step(*best_action)
             
             steps += 1
@@ -40,9 +40,9 @@ class GeneticAgent():
             
         return score        
     
-    def breed(self,parent1,parent2):
-        split = np.random.randint(1, len(parent1))
-        child1 = np.concatenate([parent1[:split], parent2[split:]])
-        child2 = np.concatenate([parent2[:split], parent1[split:]])
+    def breed(self, parent1, parent2):
+        crossover = np.random.randint(1, len(parent1))
+        child1 = np.concatenate([parent1[:crossover], parent2[crossover:]])
+        child2 = np.concatenate([parent2[:crossover], parent1[crossover:]])
         
-        return child1,child2
+        return child1, child2
