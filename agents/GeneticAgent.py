@@ -2,12 +2,11 @@ import numpy as np
 
 
 class GeneticAgent():
-    def __init__(self, state_size, elite, population_size, max_steps, num_parents, num_gens, mutation_value, mutation_chance) -> None:
+    def __init__(self, state_size, elite, population_size, max_steps, num_gens, mutation_value, mutation_chance) -> None:
         self.state_size = state_size
         self.elite = elite
         self.max_steps = max_steps
         self.population_size = population_size
-        self.num_parents = num_parents
         self.num_gens = num_gens
         self.mutation_value = mutation_value
         self.mutation_chance = mutation_chance
