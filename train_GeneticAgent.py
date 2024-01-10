@@ -3,7 +3,6 @@ import numpy as np
 from environment.tetris import Tetris
 from agents.GeneticAgent import GeneticAgent
 from utils.plot import ScatterPlot
-from environment.renderer import PyGameRenderer
 
 state_size      = 5
 elite           = 2
@@ -17,16 +16,16 @@ crossover_rate  = 0.7
 
 agent = GeneticAgent(state_size, elite, population_size, max_steps, num_parents, num_gens, mutation_value, mutation_chance)
 env = Tetris(10, 20)
-renderer = PyGameRenderer(25)
 
-def render(env):
-    renderer.render(env)
-    renderer.wait(1)
+plot = ScatterPlot("Games", "Score", "Score per game | training")
     
 population = agent.weights
 total_scores = []
 for gen in range(agent.num_gens):
     weight_score = [(weights, agent.get_fitness(env, weights)) for weights in population]
+    for i, (_, score) in enumerate(weight_score):
+        plot.add_point(i + gen * population_size, score, True)
+
     weight_score.sort(key=lambda x: x[1], reverse=True)
     
     scores = [score for _, score in weight_score]
@@ -40,7 +39,7 @@ for gen in range(agent.num_gens):
     
     while len(next_gen) < population_size:
         parent1, parent2 = random.sample(parents, 2)
-        if np.random.random()<crossover_rate:
+        if np.random.random() < crossover_rate:
             child1, child2 = agent.breed(parent1, parent2)
         else:   
             child1, child2 = parent1, parent2
@@ -53,6 +52,5 @@ for gen in range(agent.num_gens):
     
 print(f'Final best weights: {population[0]}')
 
-
-
-        
+plot.update()
+plot.freeze()   
