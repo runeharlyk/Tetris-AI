@@ -4,7 +4,7 @@ import multiprocessing
 from environment.tetris import Tetris
 from agents.GeneticAgent import GeneticAgent
 multiprocessing.freeze_support()
-#from utils.plot import ScatterPlot
+from utils.plot import ScatterPlot
 
 level_multi     = False
 cols            = 10
@@ -13,10 +13,10 @@ state_size      = 5
 
 population_size = 20
 elite_pct       = 0.1
-parent_pct      = 0.4
+parent_pct      = 0.8
 
 num_gens        = 10
-max_steps       = 500
+max_steps       = 1000
 
 mutation_value  = 0.02
 mutation_chance = 0.9
@@ -24,9 +24,9 @@ crossover_rate  = 0.7
 
 agent = GeneticAgent(state_size, elite_pct, population_size, max_steps, num_gens, mutation_value, mutation_chance)
 
-#plot = ScatterPlot("Games", "Score", "Score per game | training")
 
 def train():
+    plot = ScatterPlot("Games", "Score", "Score per game | training")
     all_scores = np.zeros((num_gens, population_size))
     print(f'|==== # of generations: {num_gens}\t| Max steps: {max_steps}\t| Pop. size: {population_size}\t| Elite %: {elite_pct} ====|')
     num_processes = multiprocessing.cpu_count()
@@ -47,7 +47,7 @@ def train():
         all_scores[gen] = scores
         survivors = int(np.ceil(elite_pct*population_size))
         
-        print(f'| Generation: {gen+1:0{len(str(num_gens))}d}\t| Min./Mean/Max. [Gen {gen+1}]: {np.min(scores)} / {np.round(np.mean(scores),2)} / {np.max(scores)}\t| Min./Mean/Max. [Overall]: {np.min(all_scores[:gen+1])} / {np.round(np.mean(all_scores[:gen+1]),2)} / {np.max(all_scores[:gen+1])}\t|')
+        print(f'| Min./Mean/Max./Std. [Gen {gen+1}]: {np.min(scores)} / {np.round(np.mean(scores),2)} / {np.max(scores)} / {np.std(scores)}\t| Min./Mean/Max./Std. [Overall]: {np.min(all_scores[:gen+1])} / {np.round(np.mean(all_scores[:gen+1]),2)} / {np.max(all_scores[:gen+1])} /  {np.std(all_scores)}\t|')
         
         parents = agent.weights[:int(population_size*parent_pct)-survivors]
         
@@ -64,7 +64,8 @@ def train():
             agent.weights[i] = child1
             if i + 1 < population_size:
                 agent.weights[i+1] = child2
- 
+        for i, score in enumerate(scores):
+            plot.add_point(i+gen*population_size,score, True)
     print(f'Final best weights: {agent.weights[0]}')  
 
 if __name__ == '__main__': 
