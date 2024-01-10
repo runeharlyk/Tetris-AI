@@ -21,6 +21,8 @@ plot = ScatterPlot("Games", "Score", "Score per game | training")
     
 population = agent.weights
 total_scores = []
+
+print(f'|==== # of generations: {num_gens}\t| Max steps: {max_steps}\t| Pop. size: {population_size}\t| # of elite/parents: {elite}/{num_parents} ====|')
 for gen in range(agent.num_gens):
     weight_score = [(weights, agent.get_fitness(env, weights)) for weights in population]
     for i, (_, score) in enumerate(weight_score):
@@ -32,7 +34,7 @@ for gen in range(agent.num_gens):
     weights = [weight for weight, _ in weight_score]
     
     total_scores += scores
-    print(f'| Generation: {gen+1:0{len(str(num_gens))}d}\t| Max steps: {agent.max_steps}\t| Pop. size: {agent.population_size}\t| High score: {np.max(scores)}\t| Mean score [Gen {gen+1}]: {np.round(np.mean(scores),2)}\t| Mean score [overall]: {np.round(np.mean(total_scores),2)}\t|')
+    print(f'| Generation: {gen+1:0{len(str(num_gens))}d}\t| Min./Mean/Max. [Gen {gen+1}]: {np.min(scores)} / {np.round(np.mean(scores),2)} / {np.max(scores)}\t| Min./Mean/Max. [Overall]: {np.min(total_scores)} / {np.round(np.mean(total_scores),2)} / {np.max(total_scores)}\t|')
     
     next_gen    = weights[:agent.elite]
     parents     = weights[:agent.num_parents]
@@ -43,8 +45,8 @@ for gen in range(agent.num_gens):
             child1, child2 = agent.breed(parent1, parent2)
         else:   
             child1, child2 = parent1, parent2
+        
         next_gen.append(child1)
-         
         if len(next_gen) % 2 == 1:
             next_gen.append(child2)
     
