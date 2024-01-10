@@ -19,12 +19,11 @@ env = Tetris(10, 20)
 
 plot = ScatterPlot("Games", "Score", "Score per game | training")
     
-population = agent.weights
 total_scores = []
 
 print(f'|==== # of generations: {num_gens}\t| Max steps: {max_steps}\t| Pop. size: {population_size}\t| # of elite/parents: {elite}/{num_parents} ====|')
 for gen in range(agent.num_gens):
-    weight_score = [(weights, agent.get_fitness(env, weights)) for weights in population]
+    weight_score = [(weights, agent.get_fitness(env, weights)) for weights in agent.weights]
     for i, (_, score) in enumerate(weight_score):
         plot.add_point(i + gen * population_size, score, True)
 
@@ -50,9 +49,9 @@ for gen in range(agent.num_gens):
         if len(next_gen) % 2 == 1:
             next_gen.append(child2)
     
-    population = next_gen
+    agent.weights = next_gen
     
-print(f'Final best weights: {population[0]}')
+print(f'Final best weights: {agent.weights[0]}')
 
 plot.update()
 plot.freeze()   
