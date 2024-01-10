@@ -11,30 +11,34 @@ cols            = 10
 rows            = 20
 state_size      = 5
 
-population_size = 20
+population_size = 10
 elite_pct       = 0.1
-parent_pct      = 0.8
+parent_pct      = 0.7
 
-num_gens        = 10
-max_steps       = 1000
+num_gens        = 20
+max_steps       = 500
 
 mutation_value  = 0.02
-mutation_chance = 0.9
-crossover_rate  = 0.7
+mutation_chance = 0.95
+crossover_rate  = 0.5
 
 agent = GeneticAgent(state_size, elite_pct, population_size, max_steps, num_gens, mutation_value, mutation_chance)
 
+def print_gen_stats(gen,gen_scores,all_scores):
+    print(f'|==\tMin./Mean/Max./Std. [Gen {gen+1}]: {np.min(gen_scores)} | {np.round(np.mean(gen_scores),2)} | {np.max(gen_scores)} | {np.round(np.std(gen_scores),2)}\t|| Min./Mean/Max./Std. [Overall]: {np.min(all_scores[:gen+1])} | {np.round(np.mean(all_scores[:gen+1]),2)} | {np.max(all_scores[:gen+1])} | {np.round(np.std(all_scores),2)}\t==|')
 
-def train():
-    plot = ScatterPlot("Games", "Score", "Score per game | training")
+def train(plotting):
+    if plotting: plot = ScatterPlot("Games", "Score", "Score per game | training")
     all_scores = np.zeros((num_gens, population_size))
-    print(f'|==== # of generations: {num_gens}\t| Max steps: {max_steps}\t| Pop. size: {population_size}\t| Elite %: {elite_pct} ====|')
+    
+    print(f'||==\t# of generations: {num_gens}\t| Max steps: {max_steps}\t| Pop. size: {population_size}\t| Elite %: {elite_pct}\t==||')
+    
     num_processes = multiprocessing.cpu_count()
     for gen in range(agent.num_gens):
         args = [(Tetris(cols, rows, level_multi), weight) for weight in agent.weights]
         try:
             with multiprocessing.Pool(processes = num_processes) as pool:
-                scores = np.array(pool.starmap(agent.get_fitness, args))
+                gen_scores = np.array(pool.starmap(agent.get_fitness, args))
         except Exception as error:
             print(error)
         finally:
@@ -42,12 +46,12 @@ def train():
             pool.join()
             pass
 
-        agent.weights = agent.weights[scores.argsort()[::-1]]
+        agent.weights = agent.weights[gen_scores.argsort()[::-1]]
         
-        all_scores[gen] = scores
+        all_scores[gen] = gen_scores
         survivors = int(np.ceil(elite_pct*population_size))
         
-        print(f'| Min./Mean/Max./Std. [Gen {gen+1}]: {np.min(scores)} / {np.round(np.mean(scores),2)} / {np.max(scores)} / {np.std(scores)}\t| Min./Mean/Max./Std. [Overall]: {np.min(all_scores[:gen+1])} / {np.round(np.mean(all_scores[:gen+1]),2)} / {np.max(all_scores[:gen+1])} /  {np.std(all_scores)}\t|')
+        print_gen_stats(gen,gen_scores,all_scores)
         
         parents = agent.weights[:int(population_size*parent_pct)-survivors]
         
@@ -64,9 +68,10 @@ def train():
             agent.weights[i] = child1
             if i + 1 < population_size:
                 agent.weights[i+1] = child2
-        for i, score in enumerate(scores):
-            plot.add_point(i+gen*population_size,score, True)
+        for i, score in enumerate(gen_scores):
+            if plotting: plot.add_point(i+gen*population_size,score, True)
+            
     print(f'Final best weights: {agent.weights[0]}')  
 
 if __name__ == '__main__': 
-    train()
+    train(False)
