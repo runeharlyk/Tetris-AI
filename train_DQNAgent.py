@@ -3,7 +3,7 @@ from environment.config import Config
 from environment.controls import Controller
 from environment.tetris import Tetris
 from environment.renderer import PyGameRenderer
-from agents.DQLAgent import DQLAgent
+from agents.DQNAgent import DQNAgent
 from utils.plot import ScatterPlot
 
 class Trainer():
@@ -105,7 +105,7 @@ if __name__ == '__main__':
     model_path = f'model_dql_{width}_{height}.pt'
 
     env = Tetris(width, height, False)
-    agent = DQLAgent(5)
+    agent = DQNAgent(5)
 
     trainer = Trainer(env, agent)
     trainer.run_episodes(10000, 1000)

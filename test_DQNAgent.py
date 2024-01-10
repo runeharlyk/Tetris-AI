@@ -2,7 +2,7 @@ from environment.config import Config
 from environment.controls import Controller
 from environment.tetris import Tetris
 from environment.renderer import PyGameRenderer
-from agents.DQLAgent import DQLAgent
+from agents.DQNAgent import DQNAgent
 from utils.plot import ScatterPlot
 
 class Tester():
@@ -82,7 +82,7 @@ if __name__ == '__main__':
     model_path = f'model_dql_{width}_{height}.pt'
 
     env = Tetris(width, height)
-    agent = DQLAgent(5, model_path, 0)
+    agent = DQNAgent(5, model_path, 0)
 
     tester = Tester(env, agent)
     tester.run(100)

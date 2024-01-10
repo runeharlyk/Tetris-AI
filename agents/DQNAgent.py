@@ -22,7 +22,7 @@ class Net(nn.Module):
     def forward(self, x):
         return self.layers(x)
 
-class DQLAgent():
+class DQNAgent():
     def __init__(self, state_size:int, path:str=None, epsilon=1.0, lr:float=0.001):
         self.state_size = state_size
         self.memory = deque(maxlen=30000)
