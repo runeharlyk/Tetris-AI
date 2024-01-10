@@ -70,7 +70,9 @@ class PyGameRenderer():
         self.surface.fill((0, 200, 0, 0))
         
     def draw_stats(self, env):
-        stats = f'Lines:{env.lines} Pieces:{env.pieces} Level:{env.level}'
+        stats = f'Lines:{env.lines} Pieces:{env.pieces}'
+        if env.use_level:
+            stats +=  f' Level:{env.level}'
         for i, line in enumerate(stats.split()):
             msg_image = self.font_img(line)
             text_offset_x = (env.board.shape[1]+6) * self.cell_size
