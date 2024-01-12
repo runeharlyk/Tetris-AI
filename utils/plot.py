@@ -38,6 +38,9 @@ class ScatterPlot:
         y = np.array(self.y)
         return np.round(np.mean(y), 2), np.round(np.std(y), 2), np.max(y)
 
+    def save(self, name):
+        np.savetxt(name, self.y, delimiter=",")
+
 if __name__ == '__main__':
     plot = ScatterPlot("Test", "X-axis", "Y-axis")
     for i in range(1000):

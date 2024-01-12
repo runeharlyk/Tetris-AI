@@ -116,5 +116,6 @@ if __name__ == '__main__':
     trainer.run_episodes(10000, 1000)
     trainer.plot.update()
     agent.save(model_path)
+    trainer.plot.save("DQN_scores.csv")
     trainer.save("line_clear_types.csv")
     trainer.plot.freeze()
