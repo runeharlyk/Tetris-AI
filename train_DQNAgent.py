@@ -100,6 +100,10 @@ class Trainer():
         
         return score
 
+    def save(self, name):
+        with open(name, 'w') as file:
+            for value in env.line_clear_types.values():
+                file.write(str(value) + ',')
 if __name__ == '__main__':
     width, height = Config.cols, Config.rows
     model_path = f'model_dql_{width}_{height}.pt'
@@ -111,4 +115,5 @@ if __name__ == '__main__':
     trainer.run_episodes(10000, 1000)
     trainer.plot.update()
     agent.save(model_path)
+    trainer.save("line_clear_types.csv")
     trainer.plot.freeze()

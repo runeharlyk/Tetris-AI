@@ -1,3 +1,4 @@
+from collections import defaultdict
 import random
 import numpy as np
 from utils.heuristics import Heuristics
@@ -23,6 +24,7 @@ class Tetris:
         self.score = 0
         self.use_level = use_level
         self.heuristics = Heuristics()
+        self.line_clear_types = defaultdict(int)
         
         self.reset()
 
@@ -170,6 +172,7 @@ class Tetris:
         self.pieces += 1
         self._place_shape(self.board, self.shape, (self.shape_x, self.shape_y))
         cleared_lines = self._clear_lines(self.board)
+        self.line_clear_types[cleared_lines] += 1
         self.level = self.lines // 10 + 1
         self._get_new_shapes()
         self._add_points(cleared_lines)
