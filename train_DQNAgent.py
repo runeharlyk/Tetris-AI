@@ -107,7 +107,7 @@ class Trainer():
 
 if __name__ == '__main__':
     width, height = Config.cols, Config.rows
-    model_path = f'model_dql_{width}_{height}.pt'
+    model_path = f'models/dql_{width}_{height}.pt'
 
     env = Tetris(width, height, False)
     agent = DQNAgent(5)
