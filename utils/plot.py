@@ -7,7 +7,7 @@ class ScatterPlot:
     def __init__(self, xlabel, ylabel, title) -> None:
         plt.ion()
         self.fig, self.ax = plt.subplots()
-        self.x, self.y = [0], [0]
+        self.x, self.y = [], []
         self.sc = self.ax.scatter(self.x, self.y)
         self.ax.set_xlabel(xlabel)
         self.ax.set_ylabel(ylabel)
@@ -21,6 +21,7 @@ class ScatterPlot:
         self.update(pause)
     
     def update(self, pause=0.0001):
+        if len(self.x) < 2: return
         ax = plt.gca()
         xmin, xmax = min(self.x), max(self.x)
         ymin, ymax = min(self.y), max(self.y)
@@ -35,6 +36,7 @@ class ScatterPlot:
         plt.waitforbuttonpress()
 
     def stats(self):
+        if len(self.x) < 1: return 0, 0, 0
         y = np.array(self.y)
         return np.round(np.mean(y), 2), np.round(np.std(y), 2), np.max(y)
 
