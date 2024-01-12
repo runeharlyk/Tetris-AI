@@ -1,4 +1,4 @@
-import random
+from tqdm import tqdm
 import numpy as np
 import multiprocessing
 from environment.tetris import Tetris
@@ -28,9 +28,9 @@ agent = GeneticAgent(state_size, elite_pct, population_size, max_steps, num_gens
 def train():
     plot = ScatterPlot("Games", "Score", "Score per game | training")
     all_scores = np.zeros((num_gens, population_size))
-    print(f'|==== # of generations: {num_gens}\t| Max steps: {max_steps}\t| Pop. size: {population_size}\t| Elite %: {elite_pct} ====|')
+    tqdm.write(f'|==== # of generations: {num_gens}\t| Max steps: {max_steps}\t| Pop. size: {population_size}\t| Elite %: {elite_pct} ====|')
     num_processes = multiprocessing.cpu_count()
-    for gen in range(agent.num_gens):
+    for gen in tqdm(range(agent.num_gens)):
         args = [(Tetris(cols, rows, level_multi), weight) for weight in agent.weights]
         try:
             with multiprocessing.Pool(processes = num_processes) as pool:
@@ -47,7 +47,7 @@ def train():
         all_scores[gen] = scores
         survivors = int(np.ceil(elite_pct*population_size))
         
-        print(f'| Min./Mean/Max./Std. [Gen {gen+1}]: {np.min(scores)} / {np.round(np.mean(scores),2)} / {np.max(scores)} / {np.std(scores)}\t| Min./Mean/Max./Std. [Overall]: {np.min(all_scores[:gen+1])} / {np.round(np.mean(all_scores[:gen+1]),2)} / {np.max(all_scores[:gen+1])} /  {np.std(all_scores)}\t|')
+        tqdm.write(f'| Min./Mean/Max./Std. [Gen {gen+1}]: {np.min(scores)} / {np.round(np.mean(scores),2)} / {np.max(scores)} / {np.std(scores)}\t| Min./Mean/Max./Std. [Overall]: {np.min(all_scores[:gen+1])} / {np.round(np.mean(all_scores[:gen+1]),2)} / {np.max(all_scores[:gen+1])} /  {np.std(all_scores)}\t|')
         
         parents = agent.weights[:int(population_size*parent_pct)-survivors]
         
@@ -66,7 +66,7 @@ def train():
                 agent.weights[i+1] = child2
         for i, score in enumerate(scores):
             plot.add_point(i+gen*population_size,score, True)
-    print(f'Final best weights: {agent.weights[0]}')  
+    tqdm.write(f'Final best weights: {agent.weights[0]}')  
 
 if __name__ == '__main__': 
     train()

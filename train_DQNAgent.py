@@ -1,4 +1,5 @@
 import multiprocessing
+from tqdm import tqdm
 from environment.config import Config
 from environment.controls import Controller
 from environment.tetris import Tetris
@@ -16,7 +17,6 @@ class Trainer():
         self.played = self.last_played = 0
         self.exit_program = False
 
-        
         self.key_actions = {
             "quit":     self.quit,
             "pause":    self.pause,
@@ -46,17 +46,17 @@ class Trainer():
         self.env.paused = not self.env.paused
 
     def print(self):
-        games_per_sec = self.played - self.last_played
-        self.last_played = self.played
         mean_score, std_score, max_score = self.plot.stats()
-        print(f'Episodes:{self.played}\tGames per second:{games_per_sec}\tMean:{mean_score}\tstd:{std_score}\tmax:{max_score}\tmemory:{len(self.agent.memory)}')
+        tqdm.write(f'\tMean:{mean_score}\tstd:{std_score}\tmax:{max_score}\tmemory:{len(self.agent.memory)}')
 
     def run_episodes(self, max_episode, max_steps):
         try:
             num_processes = multiprocessing.cpu_count()
             with multiprocessing.Pool(processes = num_processes) as pool:
-                rewards = [self.run_episode(i, max_steps, pool) for i in range(max_episode) if not self.exit_program]
-                return rewards
+                for i in tqdm(range(max_episode)):
+                    self.run_episode(i, max_steps, pool)
+                    if self.exit_program:
+                        break
         except Exception as error:
             print(error)
             self.exit_program = True
@@ -104,6 +104,7 @@ class Trainer():
         with open(name, 'w') as file:
             for value in env.line_clear_types.values():
                 file.write(str(value) + ',')
+
 if __name__ == '__main__':
     width, height = Config.cols, Config.rows
     model_path = f'model_dql_{width}_{height}.pt'
