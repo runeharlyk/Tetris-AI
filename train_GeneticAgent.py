@@ -67,6 +67,7 @@ def train():
         for i, score in enumerate(scores):
             plot.add_point(i+gen*population_size,score, True)
     tqdm.write(f'Final best weights: {agent.weights[0]}')  
+    plot.save('scores.csv')
 
 if __name__ == '__main__': 
     train()
