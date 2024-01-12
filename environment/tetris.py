@@ -1,4 +1,3 @@
-from collections import defaultdict
 import random
 import numpy as np
 from utils.heuristics import Heuristics
@@ -24,7 +23,6 @@ class Tetris:
         self.score = 0
         self.use_level = use_level
         self.heuristics = Heuristics()
-        self.line_clear_types = defaultdict(int)
         
         self.reset()
 
@@ -55,6 +53,7 @@ class Tetris:
         self.bag = []
         self._get_new_shapes()
         self.state = np.array([0, 0, 0, 0, 0])
+        self.line_clear_types = {0:0, 1:0, 2:0, 3:0, 4:0}
         return self.state
 
     def _get_current_state(self, board:np.ndarray, shape:np.ndarray, offset:tuple) -> np.ndarray[int]:

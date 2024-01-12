@@ -1,6 +1,7 @@
 from tqdm import tqdm
 import argparse
 import time
+import csv
 import statistics
 import os
 
@@ -48,10 +49,10 @@ def save_results():
     with open(f'{path}/scores.csv', 'w') as file:
         for score in scores:
             file.write(f'{score}\n')
-    with open(f'{path}/piece_history.csv', 'w') as file:
-        val = ','.join(map(str, env.line_clear_types.keys()))
-        n = ','.join(map(str, env.line_clear_types.values()))
-        file.write(f'{val}\n{n}')
+    with open(f'{path}/piece_history.csv', 'w', newline='') as file:
+        csv_writer = csv.writer(file)
+        csv_writer.writerow(env.line_clear_types.keys())
+        csv_writer.writerow(env.line_clear_types.values())
 
 for game in tqdm(range(args.samples)):
     env.reset()

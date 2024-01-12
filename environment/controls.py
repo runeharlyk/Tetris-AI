@@ -4,7 +4,7 @@ import pygame
 from environment.actions import key_actions
 
 class Controller:
-    def __init__(self, actions) -> None:
+    def __init__(self, actions={}) -> None:
         self.actions = actions
 
     def isValidAction(self, action, events, event):
