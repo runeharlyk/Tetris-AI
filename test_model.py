@@ -42,6 +42,7 @@ if args.render:
     controller = Controller()
 
 scores = []
+reward_counts = []
 def save_results():
     now = str(time.time()).split('.')[0]
     path = f"{args.out}/{args.model}_{now}"
@@ -51,8 +52,7 @@ def save_results():
             file.write(f'{score}\n')
     with open(f'{path}/piece_history.csv', 'w', newline='') as file:
         csv_writer = csv.writer(file)
-        csv_writer.writerow(env.line_clear_types.keys())
-        csv_writer.writerow(env.line_clear_types.values())
+        csv_writer.writerows(reward_counts)
 
 for game in tqdm(range(args.samples)):
     env.reset()
@@ -77,6 +77,7 @@ for game in tqdm(range(args.samples)):
         plot.add_point(game, score, args.plot)
         
     scores.append(score)
+    reward_counts.append(list(env.line_clear_types.values()))
 
 save_results()
 
