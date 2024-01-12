@@ -23,7 +23,8 @@ class GeneticAgent():
     def act(self, states, weights):
         return max(states.items(), key=lambda x: (sum(x[1][i] * weight for i, weight in enumerate(weights))))[0]       
         
-    def get_fitness(self, env, weights):
+    def get_fitness(self, args):
+        env, weights = args
         env.reset()
         steps = 0
         done = False
