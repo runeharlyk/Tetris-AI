@@ -58,8 +58,9 @@ def train():
                 agent.weights[i+1] = child2
         for i, score in enumerate(scores):
             plot.add_point(i+gen*population_size,score, True)
-    tqdm.write(f'Final best weights: {agent.weights[0]}')  
-    plot.save('genetic_scores.csv')
+    tqdm.write(f"Final best weights: {agent.weights[0]}")
+    plot.save("genetic_scores.csv")
+    np.savetxt("best_weights_per_gen.csv", best_per_gen, delimiter=",")
 
 if __name__ == '__main__': 
     train()
