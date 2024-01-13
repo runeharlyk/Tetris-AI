@@ -6,6 +6,7 @@ from collections import deque
 import numpy as np
 import random
 
+
 class Net(nn.Module):
     def __init__(self, state_size):
         super(Net, self).__init__()
@@ -16,24 +17,39 @@ class Net(nn.Module):
             nn.ReLU(),
             nn.Linear(64, 32),
             nn.ReLU(),
-            nn.Linear(32, 1)
+            nn.Linear(32, 1),
         )
 
     def forward(self, x):
         return self.layers(x)
 
-class DQNAgent():
-    def __init__(self, state_size:int, path:str=None, epsilon=1.0, lr:float=0.001):
-        self.state_size = state_size
-        self.memory = deque(maxlen=30000)
-        self.discount = 0.95
-        self.epsilon = epsilon
-        self.epsilon_min = 0.01
-        self.epsilon_end_episode = 1500
-        self.epsilon_decay = (self.epsilon - self.epsilon_min) / self.epsilon_end_episode
 
-        self.batch_size = 512
-        self.replay_start = 2000
+class DQNAgent:
+    def __init__(
+        self,
+        state_size: int,
+        path: str = None,
+        memory_size: int = 30000,
+        discount: int = 0.95,
+        epsilon: int = 1.0,
+        epsilon_min: int = 0.01,
+        epsilon_end_episode: int = 1500,
+        batch_size: int = 512,
+        replay_start: int = 2000,
+        lr: float = 0.001,
+    ):
+        self.state_size = state_size
+        self.memory = deque(maxlen=memory_size)
+        self.discount = discount
+        self.epsilon = epsilon
+        self.epsilon_min = epsilon_min
+        self.epsilon_end_episode = epsilon_end_episode
+        self.epsilon_decay = (
+            self.epsilon - self.epsilon_min
+        ) / self.epsilon_end_episode
+
+        self.batch_size = batch_size
+        self.replay_start = replay_start
 
         self.model = self.initialize_model(state_size, path)
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr)
@@ -53,22 +69,28 @@ class DQNAgent():
         self.memory.append([current_state, next_state, reward, done])
 
     def get_action_by_state(self, states, best_state):
-        return next((action for action, state in states.items() if (best_state == state).all()), None)
-    
+        return next(
+            (action for action, state in states.items() if (best_state == state).all()),
+            None,
+        )
+
     def act(self, states):
         if np.random.random() <= self.epsilon:
             return random.choice(list(states.keys()))
-        
+
         state_tensors = torch.FloatTensor(np.array(list(states.values())))
         with torch.no_grad():
             values = self.model(state_tensors)
-            return self.get_action_by_state(states, list(states.values())[ torch.argmax(values).item()]) #states[torch.argmax(values).item()]
-    
+            return self.get_action_by_state(
+                states, list(states.values())[torch.argmax(values).item()]
+            )
+
     def save(self, path):
         torch.save(self.model.state_dict(), path)
 
     def replay(self):
-        if len(self.memory) < self.replay_start: return
+        if len(self.memory) < self.replay_start:
+            return
 
         batch = random.sample(self.memory, min(len(self.memory), self.batch_size))
 
@@ -83,7 +105,7 @@ class DQNAgent():
             new_q = reward
             if not done:
                 new_q += self.discount * next_qvalues[i]
-            
+
             x[i] = state
             y[i] = new_q
 
