@@ -14,39 +14,28 @@ from agents.DumbAgent import DumbAgent
 
 def load_agent(model, model_path):
     match model:
-        case "DQN":
+        case "dqn":
             return DQNAgent(5, model_path, 0)
         case "genetic":
             return DumbAgent(5, model_path)
 
 
-def save_results():
-    now = str(time.time()).split(".")[0]
-    path = f"{args.out}/{args.model}_{now}"
-    os.makedirs(path, exist_ok=True)
-    with open(f"{path}/scores.txt", "w") as file:
-        for score in scores:
-            file.write(f"{score}\n")
-    with open(f"{path}/line_history.txt", "w", newline="") as file:
-        for row in line_history:
-            file.write(f'{" ".join(map(str, row))}\n')
-
-
 parser = argparse.ArgumentParser(
     prog="Test model", description="Test and evaluate model"
 )
-parser.add_argument("--model", choices=["DQN", "genetic"], default="DQN")
+parser.add_argument("--model", choices=["dqn", "genetic"], default="DQN")
 parser.add_argument("--path", default="model/model_dqn_10_20.pt")
 parser.add_argument("--render", action=argparse.BooleanOptionalAction)
 parser.add_argument("--plot", action=argparse.BooleanOptionalAction)
 parser.add_argument("--cols", nargs="?", default=10)
 parser.add_argument("--rows", nargs="?", default=20)
-parser.add_argument("--max_steps", nargs="?", default=200)
-parser.add_argument("--samples", nargs="?", default=10)
+parser.add_argument("--max_steps", nargs="?", default=1000)
+parser.add_argument("--samples", nargs="?", default=50)
 parser.add_argument("--out", nargs="?", default="results")
+parser.add_argument("--level_multi", action=argparse.BooleanOptionalAction)
 args = parser.parse_args()
 
-env = Tetris(args.cols, args.rows)
+env = Tetris(args.cols, args.rows, args.level_multi)
 agent = load_agent(args.model, args.path)
 if args.plot:
     plot = ScatterPlot("Games", "Score", "Score per game")
@@ -55,8 +44,11 @@ if args.render:
     renderer = PyGameRenderer(30)
     controller = Controller()
 
-scores = []
-line_history = []
+now = str(time.time()).split(".")[0]
+path = f"{args.out}/{args.model}_{now}"
+os.makedirs(path, exist_ok=True)
+scores = open(f"{path}/line_history.txt", "w", newline="")
+line_history = open(f"{path}/scores.txt", "w", newline="")
 
 for game in tqdm(range(args.samples)):
     env.reset()
@@ -80,10 +72,11 @@ for game in tqdm(range(args.samples)):
     if args.plot:
         plot.add_point(game, score, args.plot)
 
-    scores.append(score)
-    line_history.append(list(env.line_clear_types.values()))
+    scores.write(f"{score}\n")
+    line_history.write(f'{" ".join(map(str, list(env.line_clear_types.values())))}\n')
 
-save_results()
+scores.close()
+line_history.close()
 
 if args.plot:
     plot.update()
