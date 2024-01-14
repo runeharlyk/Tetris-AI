@@ -82,6 +82,7 @@ class Tetris:
                 max_x = int(self.cols - rotated.shape[1] + 1)
                 for x in range(max_x):
                     actions.append((x, rotation, holding))
+                rotations.append(str(rotated))
             self.hold()
         return actions 
     
