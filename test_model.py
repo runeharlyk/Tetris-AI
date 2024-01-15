@@ -24,8 +24,8 @@ def load_agent(model, model_path):
 parser = argparse.ArgumentParser(
     prog="Test model", description="Test and evaluate model"
 )
-parser.add_argument("--model", choices=["dqn", "genetic"], default="DQN")
-parser.add_argument("--path", default="model/model_dqn_10_20.pt")
+parser.add_argument("--model", choices=["dqn", "genetic"], default="dqn")
+parser.add_argument("--path", default="models/dqn_10_20.pt")
 parser.add_argument("--render", action=argparse.BooleanOptionalAction)
 parser.add_argument("--plot", action=argparse.BooleanOptionalAction)
 parser.add_argument("--cols", nargs="?", default=10)
