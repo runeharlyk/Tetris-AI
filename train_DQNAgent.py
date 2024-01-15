@@ -138,7 +138,7 @@ if __name__ == "__main__":
     env = Tetris(args.cols, args.rows, False)
     agent = DQNAgent(
         5,
-        args.path,
+        None,
         args.memory_size,
         args.discount,
         args.epsilon,
