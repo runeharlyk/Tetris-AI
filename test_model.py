@@ -47,8 +47,8 @@ if args.render:
 now = str(time.time()).split(".")[0]
 path = f"{args.out}/{args.model}_{now}"
 os.makedirs(path, exist_ok=True)
-scores = open(f"{path}/line_history.txt", "w", newline="")
-line_history = open(f"{path}/scores.txt", "w", newline="")
+scores = open(f"{path}/scores.txt", "w", newline="")
+line_history = open(f"{path}/line_history.txt", "w", newline="")
 
 for game in tqdm(range(args.samples)):
     env.reset()
