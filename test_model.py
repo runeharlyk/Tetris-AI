@@ -13,9 +13,10 @@ from agents.DumbAgent import DumbAgent
 
 
 def load_agent(model, model_path):
+    tqdm.write(f"Loading model:{model} from {model_path}")
     match model:
         case "dqn":
-            return DQNAgent(5, model_path, 0)
+            return DQNAgent(5, model_path, epsilon=0)
         case "genetic":
             return DumbAgent(5, model_path)
 
