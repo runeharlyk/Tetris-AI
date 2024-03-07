@@ -37,6 +37,8 @@ class Trainer:
         self.should_plot = args.plot
         self.played = self.last_played = 0
         self.exit_program = False
+        self.delays = [1, 5, 25, 50, 100]
+        self.delays_idx = 0
 
         self.key_actions = {
             "quit": self.quit,
@@ -45,6 +47,7 @@ class Trainer:
             "render": self.toggle_render,
             "plot": self.toggle_plot,
             "print": self.print,
+            "up": self.update_delay,
         }
 
         self.renderer = PyGameRenderer(Config.cell_size)
@@ -53,6 +56,9 @@ class Trainer:
         self.controller = Controller(self.key_actions)
         self.controller.setEventTimer(Config.delay_id, Config.down_delay)
         self.controller.setEventTimer(Config.print_id, Config.print_delay)
+
+    def update_delay(self):
+        self.delays_idx += 1
 
     def toggle_render(self):
         self.render = not self.render
@@ -98,7 +104,7 @@ class Trainer:
         while not done:
             if self.render:
                 self.renderer.render(self.env)
-                self.renderer.wait(1)
+                self.renderer.wait(self.delays[self.delays_idx % len(self.delays)])
 
             next_actions = env.get_possible_actions()
             next_states = pool.starmap(env._get_state, next_actions)

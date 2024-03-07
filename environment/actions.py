@@ -25,6 +25,7 @@ key_actions = {
     "down":     [pygame.USEREVENT+Config.delay_id],
     "reset":    [pygame.K_r],
     "render":   [pygame.K_m],
+    "up":       [pygame.K_UP],
     "plot":     [pygame.K_n],
     "print":    [pygame.USEREVENT+Config.print_id],
 }
