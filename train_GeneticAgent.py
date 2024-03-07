@@ -12,16 +12,16 @@ cols = 10
 rows = 20
 state_size = 5
 
-population_size = 20
+population_size = 100
 elite_pct = 0.1
-parent_pct = 0.8
+parent_pct = 0.4
 
-num_gens = 10
+num_gens = 20
 max_steps = 1000
 
 mutation_value = 0.02
-mutation_chance = 0.9
-crossover_rate = 0.7
+mutation_chance = 0.3
+crossover_rate = 0.1
 
 agent = GeneticAgent(
     state_size,
