@@ -18,28 +18,30 @@ class RenderConfig():
 NES_Tetris_Config = RenderConfig(Color.BLACK, Color.BLACK, Color.WHITE, Color.WHITE)
 PAPER_Tetris_Config = RenderConfig(Color.GREYBLUE, Color.WHITE, Color.BLACK, Color.BLACK, True, False)
 
-class PyGameRenderer():
+class PyGameRenderer:
     def __init__(self, cell_size, config=NES_Tetris_Config):
         self.clock = pygame.time.Clock()
         self.cell_size = cell_size
         self.heuristics = Heuristics()
         self.config = config
 
-    def render(self, env:Tetris):
+    def render(self, env: Tetris):
         if not pygame.get_init():
             pygame.init()
-            self.width  = env.cols * self.cell_size + self.cell_size * 10
+            self.width = env.cols * self.cell_size + self.cell_size * 10
             self.height = env.rows * self.cell_size + self.cell_size * 2
             self.screen = pygame.display.set_mode((self.width, self.height))
             self.surface = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
-            pygame.event.set_blocked(pygame.MOUSEMOTION) 
+            pygame.event.set_blocked(pygame.MOUSEMOTION)
             self.font = pygame.font.Font(None, 36)
 
         self.surface.set_alpha(255)
         self.screen.fill(self.config.bg_color)
         self.surface.fill(self.config.bg_color)
 
-        self.top_msg(f'Score: {env.score}')
+        self.draw_rect(Color.GRAY, 5, 1, env.cols, env.rows)
+
+        self.top_msg(f"Score: {env.score}")
         # self.draw_rect((255, 0, 0), 5, 1, env.cols, env.rows)
         for i, shape in enumerate(env.held_shapes):
             self.draw_matrix(shape, (1, i * 3 + 1))
@@ -49,7 +51,7 @@ class PyGameRenderer():
             self.draw_matrix(env.shape, (env.shape_x + 5, env._soft_drop(env.board, env.shape, (env.shape_x, env.shape_y)) + 1), 2)
         for i, shape in enumerate(env.next_shapes):
             self.draw_matrix(shape, (env.board.shape[1] + 6, i * 3 + 1))
-        self.draw_grid()
+        self.draw_grid(env)
         self.draw_stats(env)
 
         self.draw_heuristics(env)
@@ -68,27 +70,44 @@ class PyGameRenderer():
     def add_backdrop(self):
         self.surface.set_alpha(100)
         self.surface.fill((0, 200, 0, 0))
-        
+
     def draw_stats(self, env):
-        stats = f'Lines:{env.lines} Pieces:{env.pieces}'
+        stats = f"Lines:{env.lines} Pieces:{env.pieces}"
         if env.use_level:
-            stats +=  f' Level:{env.level}'
+            stats += f" Level:{env.level}"
         for i, line in enumerate(stats.split()):
             msg_image = self.font_img(line)
-            text_offset_x = (env.board.shape[1]+6) * self.cell_size
+            text_offset_x = (env.board.shape[1] + 6) * self.cell_size
             text_offset_y = (i + len(env.next_shapes) * 3 + 1) * self.cell_size
             self.surface.blit(msg_image, (text_offset_x, text_offset_y))
 
     def draw_rect(self, color, left, top, width, height):
         cs = self.cell_size
-        pygame.draw.rect(self.surface, color, 
-                         pygame.Rect(left*cs, top*cs, width*cs, height*cs),  2)
+        pygame.draw.rect(
+            self.surface,
+            color,
+            pygame.Rect(left * cs, top * cs, width * cs, height * cs),
+            2,
+        )
 
-    def draw_grid(self):
-        for i in range(self.width // self.cell_size):
-            pygame.draw.line(self.surface, self.config.grid_color, (i * self.cell_size, 0), (i * self.cell_size, self.height * self.cell_size))
-        for i in range(self.height // self.cell_size):
-            pygame.draw.line(self.surface, self.config.grid_color, (0, i * self.cell_size), (self.width * self.cell_size, i * self.cell_size))
+    def draw_grid(self, env):
+        cs = self.cell_size
+        cols, rows = env.cols, env.rows
+        off_y, off_x = 1, 5
+        for col in range(cols + 1):
+            pygame.draw.line(
+                self.surface,
+                self.config.grid_color,
+                ((off_x + col) * cs, off_y * cs),
+                ((off_x + col) * cs, (rows + off_y) * cs),
+            )
+        for row in range(rows + 1):
+            pygame.draw.line(
+                self.surface,
+                self.config.grid_color,
+                (off_x * cs, (off_y + row) * cs),
+                ((cols + off_x) * cs, (off_y + row) * cs),
+            )
 
     def wait(self, ms):
         self.clock.tick(1000 / ms)
@@ -106,7 +125,6 @@ class PyGameRenderer():
     def center_msg(self, msg):
         for i, line in enumerate(msg.splitlines()):
             msg_image = self.font_img(line)
-        
             msgim_center_x, msgim_center_y = msg_image.get_size()
             msgim_center_x //= 2
             msgim_center_y //= 2
