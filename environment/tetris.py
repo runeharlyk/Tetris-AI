@@ -77,12 +77,12 @@ class Tetris:
         for holding in range(2):
             for rotation in range(4): 
                 rotated = self._rotate(self.board, self.shape, (self.shape_x, 0), rotation)
-                if str(rotated) in rotations:
+                if self._shape_to_hashable(rotated) in rotations:
                     continue
                 max_x = int(self.cols - rotated.shape[1] + 1)
                 for x in range(max_x):
                     actions.append((x, rotation, holding))
-                rotations.append(str(rotated))
+                rotations.append(self._shape_to_hashable(rotated))
             self.hold()
         return actions 
     
@@ -92,7 +92,10 @@ class Tetris:
 
     # Private tetris
 
-    def _rotate_clockwise(self, shape:np.ndarray, times:int=1) -> np.ndarray:
+    def _shape_to_hashable(self, shape):
+        return tuple(shape.flatten())
+
+    def _rotate_clockwise(self, shape: np.ndarray, times: int = 1) -> np.ndarray:
         return np.rot90(shape, times * -1)
 
     def _check_collision(self, board:np.ndarray, shape:np.ndarray, offset:tuple) -> int:
