@@ -7,13 +7,13 @@ delay_per_level = [48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4, 4, 3, 3,
 
 class Tetris:
     SHAPES = [
-        np.array([[1, 1, 1], [0, 1, 0]]),
-        np.array([[0, 2, 2], [2, 2, 0]]),
-        np.array([[3, 3, 0], [0, 3, 3]]),
-        np.array([[4, 0, 0], [4, 4, 4]]),
-        np.array([[0, 0, 5], [5, 5, 5]]),
-        np.array([[6, 6, 6, 6]]),
-        np.array([[7, 7], [7, 7]])
+        np.array([[1, 1, 1], [0, 1, 0]], dtype=np.uint8),
+        np.array([[0, 2, 2], [2, 2, 0]], dtype=np.uint8),
+        np.array([[3, 3, 0], [0, 3, 3]], dtype=np.uint8),
+        np.array([[4, 0, 0], [4, 4, 4]], dtype=np.uint8),
+        np.array([[0, 0, 5], [5, 5, 5]], dtype=np.uint8),
+        np.array([[6, 6, 6, 6]], dtype=np.uint8),
+        np.array([[7, 7], [7, 7]], dtype=np.uint8),
     ]
 
     def __init__(self, columns:int, rows:int, use_level:bool=True):
@@ -128,20 +128,20 @@ class Tetris:
         while not self._check_collision(board, shape, (x, y + 1)):
             y += 1
         return y
-    
+
     def _level_multiplier(self):
         return self.level if self.use_level else 1
-    
-    def _new_board(self) -> np.ndarray[np.ndarray[int]]:
-        return np.zeros((self.rows, self.cols), dtype=int)
-    
-    def _add_points(self, lines_cleared:int) -> int:
+
+    def _new_board(self) -> np.ndarray[np.ndarray[np.uint8]]:
+        return np.zeros((self.rows, self.cols), dtype=np.uint8)
+
+    def _add_points(self, lines_cleared: int) -> int:
         self.lines += lines_cleared
         score = line_points[lines_cleared] * self._level_multiplier()
         self.score += score
         return score
 
-    def _get_new_random_shape(self) -> np.ndarray[np.ndarray[int]]:
+    def _get_new_random_shape(self) -> np.ndarray[np.ndarray[np.uint8]]:
         if not self.bag:
             self.bag = self.SHAPES.copy()
             random.shuffle(self.bag)
