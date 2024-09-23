@@ -1,5 +1,7 @@
 # Tetris-AI using DQN
 
+![Tetris.png](assets/Tetris.png)
+
 <!-- Insert gif of AI playing -->
 
 <!-- ## TL-DR -->
@@ -24,10 +26,10 @@ This project utilizes deep reinforcement learning to master the game of Tetris. 
 
 To efficiently train and run the neural network the game state is reduced to a few heuristics:
 
-* Number of full rows
-* Max height of the columns
-* Number of bridges (a bridge is an empty cell beneath a full cell in the column above).
-* Bumpiness (sum of absolute difference between column height)
+- Number of full rows
+- Max height of the columns
+- Number of bridges (a bridge is an empty cell beneath a full cell in the column above).
+- Bumpiness (sum of absolute difference between column height)
 
 ## Getting started
 
@@ -39,22 +41,22 @@ The project uses Python 3.11.x which can be down from the [official website](htt
 
 1. Clone the repo
 
-    ```sh
-    git clone https://github.com/runeharlyk/Tetris-AI.git
-    cd Tetris-AI
-    ```
+   ```sh
+   git clone https://github.com/runeharlyk/Tetris-AI.git
+   cd Tetris-AI
+   ```
 
 1. Setup [virtual environment](https://docs.python.org/3/library/venv.html) (Optional)
 
-    ```sh
-    python -m venv TetrisEnv
-    ```
+   ```sh
+   python -m venv TetrisEnv
+   ```
 
 1. Install the dependencies
 
-    ```sh
-    pip install -r requirements.txt
-    ```
+   ```sh
+   pip install -r requirements.txt
+   ```
 
 ## Usage
 
