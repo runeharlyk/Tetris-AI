@@ -3,7 +3,7 @@ import numpy as np
 
 
 class DumbAgent:
-    def __init__(self, state_size, model_path):
+    def __init__(self, state_size, model_path=None):
         if model_path and os.path.isfile(model_path):
             try:
                 self.weights = np.loadtxt(model_path)[:state_size]

@@ -69,7 +69,7 @@ python train_DQLAgent.py
 To test, without modifying, the models run their test script eg.
 
 ```sh
-python test_model.py -model dqn
+python test_model.py --model dqn
 ```
 
 ## Roadmap

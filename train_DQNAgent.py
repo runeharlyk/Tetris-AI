@@ -11,8 +11,8 @@ from utils.plot import ScatterPlot
 
 parser = argparse.ArgumentParser(prog="Train DQN model")
 parser.add_argument("--path", default="models/dqn_10_20.pt")
-parser.add_argument("--render", action=argparse.BooleanOptionalAction)
-parser.add_argument("--plot", action=argparse.BooleanOptionalAction)
+parser.add_argument("--render", action=argparse.BooleanOptionalAction, default=True)
+parser.add_argument("--plot", action=argparse.BooleanOptionalAction, default=True)
 parser.add_argument("--cols", nargs="?", default=10)
 parser.add_argument("--rows", nargs="?", default=20)
 parser.add_argument("--max_steps", nargs="?", default=1000)

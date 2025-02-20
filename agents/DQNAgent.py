@@ -59,7 +59,7 @@ class DQNAgent:
         model = Net(state_size)
         if path and os.path.isfile(path):
             try:
-                model.load_state_dict(torch.load(path))
+                model.load_state_dict(torch.load(path, weights_only=True))
                 model.eval()
                 print("Using pre-trained model")
             except Exception as e:
